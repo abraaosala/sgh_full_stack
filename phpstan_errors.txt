@@ -1,0 +1,591 @@
+ ------ ------------- 
+  Line   App\Control  
+         lers\Auth\A  
+         uthControll  
+         er.php       
+ ------ ------------- 
+  :30    Result of    
+         method       
+         App\Control  
+         lers\Auth\A  
+         uthControll  
+         er::render(  
+         ) (void) is  
+         used.        
+         🪪           
+         method.void  
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Control  
+         lers\Auth\A  
+         utheticate.  
+         php          
+ ------ ------------- 
+  :68    Instantiate  
+         d class      
+         App\Dao\Mod  
+         els\Acesso   
+         not found.   
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+  :100   Result of    
+         function     
+         redirect     
+         (void) is    
+         used.        
+         🪪           
+         function.vo  
+         id           
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Control  
+         lers\Medica  
+         l\Diagnosti  
+         coControlle  
+         r.php        
+ ------ ------------- 
+  :122   Class        
+         App\Dao\Mod  
+         els\Usuario  
+         not found.   
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Control  
+         lers\Patien  
+         t\PcConsult  
+         aController  
+         .php         
+ ------ ------------- 
+  :142   Undefined    
+         variable:    
+         $especialCo  
+         nvertidos    
+         🪪           
+         variable.un  
+         defined      
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Control  
+         lers\Recept  
+         ion\Recepca  
+         oController  
+         .php         
+ ------ ------------- 
+  :32    Class        
+         App\Dao\Mod  
+         els\Usuario  
+         not found.   
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Control  
+         lers\Web\Co  
+         nsultaContr  
+         oller.php    
+ ------ ------------- 
+  :182   Class        
+         App\Http\Re  
+         sponse does  
+         not have a   
+         constructor  
+         and must be  
+         instantiate  
+         d without    
+         any          
+         parameters.  
+         🪪           
+         new.noConst  
+         ructor       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Dao\Ent  
+         ity\Entity.  
+         php          
+ ------ ------------- 
+  :92    Unsafe       
+         usage of     
+         new          
+         static().    
+         🪪           
+         new.static   
+         💡  See:     
+         https://php  
+         stan.org/bl  
+         og/solving-  
+         phpstan-err  
+         or-unsafe-u  
+         sage-of-new  
+         -static      
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Dao\Mod  
+         els\Model.p  
+         hp           
+ ------ ------------- 
+  :208   Class        
+         App\Dao\int  
+         erfaces\Rel  
+         ationShipIn  
+         terface not  
+         found.       
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+  :232   Parameter    
+         $entity of   
+         method       
+         App\Dao\Mod  
+         els\Model::  
+         save() has   
+         invalid      
+         type         
+         App\Dao\Mod  
+         els\Entity.  
+         🪪           
+         class.notFo  
+         und          
+  :541   Class        
+         App\Dao\Mod  
+         els\Entity   
+         not found.   
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+  :547   Class        
+         App\Dao\Mod  
+         els\Entity   
+         not found.   
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Dao\Pag  
+         inator.php   
+ ------ ------------- 
+  :5     Class        
+         App\Dao\Mod  
+         els\Model    
+         referenced   
+         with         
+         incorrect    
+         case:        
+         app\Dao\Mod  
+         els\Model.   
+         🪪           
+         class.nameC  
+         ase          
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Dao\Que  
+         ry.php (in   
+         context of   
+         class        
+         App\Dao\Mod  
+         els\Model)   
+ ------ ------------- 
+  :579   Class        
+         app\Dao\Pag  
+         inator       
+         referenced   
+         with         
+         incorrect    
+         case:        
+         App\Dao\Pag  
+         inator.      
+         🪪           
+         class.nameC  
+         ase          
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Ap  
+         iRequest.ph  
+         p            
+ ------ ------------- 
+  :7     Class        
+         App\Http\Ap  
+         iRequest     
+         implements   
+         unknown      
+         interface    
+         App\Contrat  
+         os\RequestC  
+         ontrato.     
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Ht  
+         mlResponse.  
+         php          
+ ------ ------------- 
+  :5     Class        
+         HtmlRespons  
+         e            
+         implements   
+         unknown      
+         interface    
+         App\Contrat  
+         os\Response  
+         Contrato.    
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Po  
+         stRequest.p  
+         hp           
+ ------ ------------- 
+  :7     Class        
+         App\Http\Po  
+         stRequest    
+         implements   
+         unknown      
+         interface    
+         App\Contrat  
+         os\RequestC  
+         ontrato.     
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Re  
+         quest\PassR  
+         equest.php   
+ ------ ------------- 
+  :7     Class        
+         App\Http\Re  
+         quest\PassR  
+         equest       
+         extends      
+         unknown      
+         class        
+         App\classes  
+         \Request.    
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Re  
+         quest\UserL  
+         oginRequest  
+         .php         
+ ------ ------------- 
+  :7     Class        
+         App\Http\Re  
+         quest\UserL  
+         oginRequest  
+         extends      
+         unknown      
+         class        
+         App\classes  
+         \Request.    
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Re  
+         quest\UserP  
+         assRequest.  
+         php          
+ ------ ------------- 
+  :8     Class        
+         App\Http\Re  
+         quest\UserP  
+         assRequest   
+         extends      
+         unknown      
+         class        
+         App\classes  
+         \Request.    
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\Http\Re  
+         quest\UserR  
+         equest.php   
+ ------ ------------- 
+  :7     Class        
+         App\Http\Re  
+         quest\UserR  
+         equest       
+         extends      
+         unknown      
+         class        
+         App\classes  
+         \Request.    
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\classes  
+         \Crud.php    
+ ------ ------------- 
+  :12    Call to an   
+         undefined    
+         static       
+         method       
+         App\Dao\Con  
+         nexion::con  
+         nect().      
+         🪪           
+         staticMetho  
+         d.notFound   
+  :37    Call to an   
+         undefined    
+         method       
+         App\classes  
+         \Crud::getE  
+         ntety().     
+         🪪           
+         method.notF  
+         ound         
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\classes  
+         \Logged.php  
+ ------ ------------- 
+  :15    Result of    
+         method       
+         App\classes  
+         \Logged::st  
+         art()        
+         (void) is    
+         used.        
+         🪪           
+         method.void  
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\classes  
+         \Permition.  
+         php          
+ ------ ------------- 
+  :39    Instantiate  
+         d class      
+         App\Dao\Mod  
+         els\Permiti  
+         on not       
+         found.       
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\classes  
+         \View.php    
+ ------ ------------- 
+  :13    Unsafe       
+         usage of     
+         new          
+         static().    
+         🪪           
+         new.static   
+         💡  See:     
+         https://php  
+         stan.org/bl  
+         og/solving-  
+         phpstan-err  
+         or-unsafe-u  
+         sage-of-new  
+         -static      
+  :20    Unsafe       
+         usage of     
+         new          
+         static().    
+         🪪           
+         new.static   
+         💡  See:     
+         https://php  
+         stan.org/bl  
+         og/solving-  
+         phpstan-err  
+         or-unsafe-u  
+         sage-of-new  
+         -static      
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\middlew  
+         are\MedicoM  
+         iddleware.p  
+         hp           
+ ------ ------------- 
+  :19    Instantiate  
+         d class      
+         App\control  
+         lers\ErrorP  
+         age not      
+         found.       
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   App\middlew  
+         are\SuperAd  
+         minOnlyMidd  
+         leware.php   
+ ------ ------------- 
+  :14    Instantiate  
+         d class      
+         App\control  
+         lers\ErrorP  
+         age not      
+         found.       
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ ------ ------------- 
+  Line   core\other.  
+         php          
+ ------ ------------- 
+  :50    Class        
+         App\Control  
+         lers\Patien  
+         t\PacienteU  
+         serControll  
+         er not       
+         found.       
+         🪪           
+         class.notFo  
+         und          
+         💡  Learn    
+         more at      
+         https://php  
+         stan.org/us  
+         er-guide/di  
+         scovering-s  
+         ymbols       
+ ------ ------------- 
+
+ [ERROR] Found 30    
+         errors      
+

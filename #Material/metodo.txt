@@ -1,0 +1,10 @@
+ public function index() {}
+ public function show($params) {}
+
+ public function create() {}
+
+ public function store() {}
+ public function edit($params) {}
+ public function update($params) {}
+
+ public function delete($params) {}
