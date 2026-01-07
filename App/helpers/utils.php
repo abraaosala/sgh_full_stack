@@ -83,6 +83,7 @@ function logged(): bool
 // ------------------------------------------------------------
 function router(Router $router)
 {
+    
 
     $uri= $router->getUri();
 
@@ -94,6 +95,7 @@ function router(Router $router)
                 'success'=>false,
                 'detail'=> $throwable->getMessage(),
                 'line'=> $throwable->getLine(),
+                'trace'=> $throwable->getTrace()
 
             ], 400);
         }else{

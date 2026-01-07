@@ -34,11 +34,8 @@ class ConsultaController extends Controller
    public function api($params)
    {
 
-      // Exibir recurso da api
-
-
-      //
-      $model = new Consulta()
+      
+      $model = (new Consulta())
          ->select(
             'consultas.*, pacientes.id as pid, pu.nome as pnome, usuarios.nome medico_nome, agendas.start, especialidades.nome especialidade'
          )

@@ -20,7 +20,10 @@
                         </div>
                         <div class="text-center">
                             <h1 class="mt-5"><b>Pagina Não encontrada</b></h1>
-                            <p class="mt-2 mb-4 text-muted"><?=$message?></p>
+                            <p class="mt-2 mb-4 text-muted">
+                                <?=$message .'| Ficheiro '.$exception->getFile(). " ". $exception->getLine()?></p>
+
+                            <p class="mt-2 mb-4 text-muted"><?=implode(' ', $trace)?></p>
                             <a href="<?= root() ?>" class="btn btn-primary mb-3">ir para Inicio</a>
                             <!-- <button type="button" class="btn btn-primary mb-3">Go to home</button> -->
                         </div>

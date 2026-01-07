@@ -21,15 +21,15 @@ class FuncionarioController extends Controller
    public function index()
    {
 
-      //   $perfils= implode(',', $perfil);
-      $func = new User()->select()
+
+      $func =( new User())->select()
          ->in('perfil', $this->perfil)
          ->paginate(5);
 
       // dd($func);
       $this->view(globals([
          'title' => 'Todos Funcionários',
-         'usuarios' => $func->Items,
+         'usuarios' => $func?->Items,
          'tools' => $func
       ]), 'admin.func');
    }
@@ -45,7 +45,7 @@ class FuncionarioController extends Controller
    {
       // criar novo recurso
 
-      $provincias = new Provincia()->all();
+      $provincias = (new Provincia())->all();
       // dd($provincias);
       $this->view(globals(
          [

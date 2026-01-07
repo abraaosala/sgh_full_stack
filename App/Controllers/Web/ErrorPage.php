@@ -4,12 +4,13 @@ namespace App\Controllers\Web;
 
 use App\trait\View;
 use Exception;
+use Throwable;
 
 class ErrorPage extends Exception
 {
     use View;
 
-    public function in($code, null|array|Exception $e = [])
+    public function in($code, null|array|Throwable $e = [])
     {
 
         if (is_array($code)) {
@@ -27,7 +28,8 @@ class ErrorPage extends Exception
 
         $data = [
             'title' => sprintf('Erro de Pagina (%s)', $code),
-            'message' => $message
+            'message' => $message,
+           'exception'=> $e
         ];
         if ($code === 404) {
             $this->render([

@@ -7,7 +7,6 @@ require_once "../bootstrap.php";
 
 //Route 
 require ROOT."/routes/web.php";
-require ROOT."/core/web.php";
 
 
 /* ======================================= */

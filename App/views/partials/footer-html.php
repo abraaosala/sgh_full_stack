@@ -1,6 +1,3 @@
-<script src="<?php echo asset("vendor/fullcalender/bootstrap5/index.global.min.js"); ?>"></script>
-<script src="<?php echo asset("vendor/fullcalender/index.global.js"); ?>"></script>
-<script src="<?php echo asset("vendor/fullcalender/core/locales-all.global.min.js"); ?>"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script> -->
 <!-- [Page Specific JS] start -->
 <script src="<?= asset("js/plugins/apexcharts.min.js", true ) ?>"></script>
@@ -21,7 +18,6 @@
 
 <!-- Custom Js -->
 <script src="<?= asset("js/custom.js") ?>"></script>
-<script src="<?= asset("") ?>"></script>
 
 
 

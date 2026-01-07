@@ -189,7 +189,7 @@ class AgendaMedicaController extends Controller
     public function api()
     {
 
-        $model = new Agenda()->select('agendas.*, usuarios.id as uid, usuarios.email as email, usuarios.nome as medico, especialidades.nome as especialidade, provincias.nome as provincia, medicos.numero_ordem as numero_ordem, medicos.nivel as nivel, medicos.telefone as telefone')->join(Medico::class, 'agendas.medico_id', '=', 'medicos.id');
+        $model = (new Agenda())->select('agendas.*, usuarios.id as uid, usuarios.email as email, usuarios.nome as medico, especialidades.nome as especialidade, provincias.nome as provincia, medicos.numero_ordem as numero_ordem, medicos.nivel as nivel, medicos.telefone as telefone')->join(Medico::class, 'agendas.medico_id', '=', 'medicos.id');
 
         if (isset($_GET['id'])) {
             $id = (int) urlencode((string) $_GET['id']);

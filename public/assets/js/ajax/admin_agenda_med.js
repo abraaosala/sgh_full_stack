@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // right: 'timeGridDay,timeGridWeek,dayGridMonth,list'
         },
         initialView: 'dayGridMonth',
-        locale: 'pt',
+        locale: 'pt-br',
         // initialDate: '2023-01-12',
         navLinks: true, // can click day/week names to navigate views
         selectable: true,
@@ -31,14 +31,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Função para adicionar um evento ao clicar e arrastar
             // var title = prompt('Event Title:');
-            if (title) {
-                calendar.addEvent({
-                    title: title,
-                    start: arg.start,
-                    end: arg.end,
-                    allDay: arg.allDay
-                });
-            }
+            // if (title) {
+            //     calendar.addEvent({
+            //         title: title,
+            //         start: arg.start,
+            //         end: arg.end,
+            //         allDay: arg.allDay
+            //     });
+            // }
             calendar.unselect()
         },
         eventClick: function(arg) {
@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCadastrar.addEventListener('submit', async function(event) {
             event.preventDefault();
 
+
             const formData = new FormData(btnCadastrar);
             const data = Object.fromEntries(
                 formData); // Converte os dados do formulário para um objeto
@@ -127,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const res = await response.json();
 
+           
 
             if (!res.status) {
 
@@ -162,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             }
-            // console.log(res);
+            console.log(res);
 
         });
     }

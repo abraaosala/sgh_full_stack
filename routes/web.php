@@ -11,7 +11,7 @@
 use App\Controllers\Web\HomeController;
 use App\Http\Route;
 
-Route::get('/', [HomeController::class,'indix']); //Landinguse App\Controllers\Web\HomeController;
+Route::get('/', [HomeController::class,'index']); //Landinguse App\Controllers\Web\HomeController;
 
 
 Route::get('/meu-perfil', [HomeController::class, 'profile']);

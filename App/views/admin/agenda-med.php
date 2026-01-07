@@ -7,9 +7,6 @@
 
     </div>
 </div>
-<!-- ======================================-->
-<script src="<?=  asset('js/ajax/admin_agenda_med.js')?>"></script>
-<!-- ======================================-->
 
 <div class="modal fade" id="visualizarModal" tabindex="-1" aria-labelledby="visualizarModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -183,3 +180,11 @@
         </div>
     </div>
 </div>
+
+<script src="<?php echo asset("vendor/fullcalender/bootstrap5/index.global.min.js"); ?>"></script>
+<script src="<?php echo asset("vendor/fullcalender/index.global.js"); ?>"></script>
+<script src="<?php echo asset("vendor/fullcalender/core/locales-all.global.min.js"); ?>"></script>
+
+<!-- ======================================-->
+<script src="<?=  asset('js/ajax/admin_agenda_med.js')?>"></script>
+<!-- ======================================-->

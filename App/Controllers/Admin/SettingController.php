@@ -181,11 +181,7 @@ class SettingController
                 );
             }
 
-            // if (!Validator::between($data['senha'], 6, 16))
-            //     redirect(
-            //         'recuperar_senha',
-            //         ['password', 'Deve ter entre 6 a 16 digitos', 'danger']
-            //     );
+          
             if (!Validator::required($data['confirm_password'])) {
                 redirect(
                     'recuperar_senha',

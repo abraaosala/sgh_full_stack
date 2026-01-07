@@ -43,6 +43,7 @@ async function sair() {
 }
 const logoutCont = document.querySelector(".sair");
 
+if(logoutCont){
 logoutCont.addEventListener("click", async function () {
   const confirm = await Swal.fire({
     title: "Tem certeza?",
@@ -88,8 +89,10 @@ logoutCont.addEventListener("click", async function () {
    */
 });
 
-$(document).ready(function() {
-  $('.select2').select2(/* {
-    width: '100%' // Define a largura para 100%
-  } */);
-});
+}
+
+// $(document).ready(function() {
+//   $('.select2').select2(/* {
+//     width: '100%' // Define a largura para 100%
+//   } */);
+// });
