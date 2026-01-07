@@ -47,6 +47,11 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     Route::get('/medico-excluir/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::destroy');
     Route::get('/medico-export', \App\Controllers\Medical\MedicoController::class . '::exporte');
 
+    Route::post('agenda-med-gerar', function (){
+        
+    });
+
+    
     Route::get('/pacientes', \App\Controllers\Patient\PacienteController::class . '::index');
     Route::get('/agenda', "Reception\\AgendaController::index");
 

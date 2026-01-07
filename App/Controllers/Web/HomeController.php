@@ -3,11 +3,13 @@
 namespace App\Controllers\Web;
 
 use App\Http\BaseController as Controller;
+use App\trait\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class HomeController extends Controller
+class HomeController 
 {
+     use View;
     public function index()
     {
         // TODO: implement index method
@@ -22,36 +24,37 @@ class HomeController extends Controller
             'content' => 'Welcome to the Home Page!'
         ]));
     }
-
-    public function show($id)
+    
+    public function profile()
     {
-        // TODO: implement show method
-    }
+      // Listar recursos
+      $logado = (int) htmlspecialchars(session()->get('id'));
 
-    public function create()
+      $this->view(globals([
+         'title' => 'Perfil de Usuario ' . $logado,
+         'keywords' => 'perfil, usuario, ' . $logado,
+         'description' => 'Perfil de Usuario ' . $logado,
+      ]), 'pages.profile');
+   }
+
+
+   public function profileEdit()
     {
-        // TODO: implement create method
-    }
 
-    public function store()
-    {
-        // TODO: implement store method
-    }
+  
+      $logado = (int) htmlspecialchars(session()->get('id'));
 
-    public function edit($id)
-    {
-        // TODO: implement edit method
-    }
+      $this->view(globals([
+         'title' => 'Perfil de Usuario ' . $logado,
+         'keywords' => 'perfil, usuario, ' . $logado,
+         'description' => 'Perfil de Usuario ' . $logado,
+      ]), 'pages.edit_profile');
+   }
 
-    public function update($id)
-    {
-        // TODO: implement update method
-    }
+   
+   public function profileSave()
+   {}
 
-    public function delete($id)
-    {
-        // TODO: implement delete method
-    }
-
+  
     
 }

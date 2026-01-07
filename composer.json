@@ -11,10 +11,7 @@
             
         },
         "files":[
-           "app/helpers/utils.php",
-            "core/web.php"
-            
-            
+           "app/helpers/utils.php"           
         ]
     },
     "authors": [

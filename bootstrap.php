@@ -16,6 +16,8 @@ require __DIR__ . "/vendor/autoload.php";
 date_default_timezone_set(env('TIME_ZONE', 'Africa/Luanda')); // 
 
 /* ======================================= */
+
+
 /* ======================================= */
 // Disponibilizar variavel de Ambiente 
 safeEnv();
@@ -30,6 +32,9 @@ Illuminate\Pagination\Paginator::currentPageResolver(function ($pageName = 'page
 });
 
 /* ======================================= */
+
+
+
 
 // require "phinx.php";
 
@@ -54,13 +59,13 @@ if (env('APP_PRODUCTION', 'APP_PRODUCTION') === 'true') {
 
 
     // Captura erros fatais no fim do script
-    register_shutdown_function(function () {
-        $erro = error_get_last();
-        if ($erro && in_array($erro['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-            (new ErrorPage)->in(500, $erro);
-            exit;
-        }
-    });
+    // register_shutdown_function(function () {
+    //     $erro = error_get_last();
+    //     if ($erro && in_array($erro['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+    //         (new ErrorPage)->in(500, $erro);
+    //         exit;
+    //     }
+    // });
 }
 
 
