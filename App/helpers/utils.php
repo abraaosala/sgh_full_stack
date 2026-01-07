@@ -83,22 +83,22 @@ function logged(): bool
 // ------------------------------------------------------------
 function router(Router $router)
 {
- 
+
     $uri= $router->getUri();
-   
+
     try {
         return $router->router();
-    } catch (Throwable $exception) {
-        if (str_contains($uri, 'api')) {
+    } catch (Throwable $throwable) {
+        if (str_contains((string) $uri, 'api')) {
             response()->json([
                 'success'=>false,
-                'detail'=> $exception->getMessage(),
-                'line'=> $exception->getLine(),
-                  
+                'detail'=> $throwable->getMessage(),
+                'line'=> $throwable->getLine(),
+
             ], 400);
         }else{
-            
-            (new ErrorPage())->in(404, $exception);
+
+            (new ErrorPage())->in(404, $throwable);
             exit;
         }
     }
@@ -211,6 +211,7 @@ function globals(?array $data = [])
             // session()->logout(); // Optional: force logout
             $perfil = null;
         }
+
         // $perfil = (new Perfil())->findById($perfil) ?? '';
 
         // code...
@@ -280,6 +281,7 @@ function data(?array $data = [])
             $data['perfil'] = $perfil;
             $data['perfils'] = $prefix;
         }
+
         // $perfil = (new Perfil())->findById($perfil) ?? '';
 
         // code...
@@ -693,9 +695,9 @@ function level(int $int): string
 // -------------------------------------------------------------
 function avatar_url(string $name, string $background = '6f42c1', int $size = 64): string
 {
-    $avatar  = "https://ui-avatars.com/api/?name=" . urlencode((string) ($name ?? 'User')) . "&background={$background}&color=fff&size={$size}";
-    return $avatar;
+    return "https://ui-avatars.com/api/?name=" . urlencode($name ?? 'User') . sprintf('&background=%s&color=fff&size=%d', $background, $size);
 }
+
 // -------------------------------------------------------------
 /**
  * Filtrar users  baseado no in.
@@ -832,6 +834,7 @@ function error_msg($field)
         // unset($_SESSION['input_errors'][$field]); // Optional: unset if we want flash-like behavior per field
         return '<div class="text-danger small mt-1"> * ' . $msg . '</div>';
     }
+
     return '';
 }
 
@@ -887,9 +890,7 @@ function paginate_links(LengthAwarePaginator $paginator)
         $html .= '<li class="page-item disabled"><span class="page-link">&raquo;</span></li>';
     }
 
-    $html .= '</ul></nav>';
-
-    return $html;
+    return $html . '</ul></nav>';
 }
 
 

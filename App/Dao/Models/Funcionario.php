@@ -23,16 +23,6 @@ class Funcionario extends Model
     ];
 
     /**
-     * O construtor da classe.
-     * Define a tabela e chama o construtor da classe pai.
-     */
-    public function __construct(?string $entity = null) {
-
-        parent::__construct($entity);
-
-    }
-
-    /**
      * Métodos específicos para o modelo Funcionario podem ser adicionados aqui.
      *
      * Exemplo:

@@ -108,7 +108,7 @@ class MedicoController extends Controller
          $senha = Password::generate(2);
          $user = User::create([
             'nome' => $data['nome'],
-            'email' => strtolower($data['email']),
+            'email' => strtolower((string) $data['email']),
             'perfil' => $data['perfil'],
             'genero' => $data['genero'],
             'data_nascimento' => $data['data_nascimento'], // Assuming user table has this
@@ -138,9 +138,9 @@ class MedicoController extends Controller
          DB::commit();
          PostOld::clean();
          redirect('admin/medicos', ['success', 'Medico Registrado com sucesso']);
-      } catch (\Exception $e) {
+      } catch (\Exception $exception) {
          DB::rollBack();
-         redirect('admin/medicos', ['error', 'Erro ao cadastrar: ' . $e->getMessage()]);
+         redirect('admin/medicos', ['error', 'Erro ao cadastrar: ' . $exception->getMessage()]);
       }
    }
 
@@ -191,7 +191,7 @@ class MedicoController extends Controller
          redirect('admin/medicos', ['error', 'Medico não encontrado']);
       }
 
-      $validator = ValidatorHelper::make($data, [
+      ValidatorHelper::make($data, [
          'nome' => 'required|min:3',
          'email' => 'required|email',
          // 'data_nascimento' => 'required|date', // If present in edit form
@@ -203,14 +203,14 @@ class MedicoController extends Controller
       // Assuming typical edit fields are presents:
 
       if (User::where('email', $data['email'])->where('id', '!=', $medico->usuario_id)->exists()) {
-         redirect("admin/medico-editar/$id", ['error', 'Email já em uso por outro usuário', 'danger']);
+         redirect('admin/medico-editar/' . $id, ['error', 'Email já em uso por outro usuário', 'danger']);
       }
 
       DB::beginTransaction();
       try {
          $medico->usuario()->update([
             'nome' => $data['nome'],
-            'email' => strtolower($data['email']),
+            'email' => strtolower((string) $data['email']),
             'genero' => $data['genero'],
             // 'data_nascimento' => $data['data_nascimento'] ?? $medico->usuario->data_nascimento
          ]);
@@ -226,9 +226,9 @@ class MedicoController extends Controller
          DB::commit();
          PostOld::clean();
          redirect('admin/medicos', ['success', 'Medico atualizado com sucesso']);
-      } catch (\Exception $e) {
+      } catch (\Exception $exception) {
          DB::rollBack();
-         redirect('admin/medicos', ['error', 'Falha ao atualizar: ' . $e->getMessage()]);
+         redirect('admin/medicos', ['error', 'Falha ao atualizar: ' . $exception->getMessage()]);
       }
    }
 

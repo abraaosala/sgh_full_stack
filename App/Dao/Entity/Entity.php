@@ -6,7 +6,7 @@ use App\utils\Hash;
 
 abstract class Entity
 {
-    
+
     /** @var array<string, mixed> */
     protected array $atributes = [];
 
@@ -30,10 +30,11 @@ abstract class Entity
     {
         return $this->atributes;
     }
-    
+
     public function create(){
         return (new static ());
     }
+
     /**
      * Preenche os atributos da entidade a partir de um array ou objeto.
      *
@@ -51,11 +52,11 @@ abstract class Entity
         if (isset($data['senha'])) {
             $data['senha']= $this->hash($data['senha']);
         }
-        
+
         if (isset($data['password'])) {
             $data['password']= $this->hash($data['password']);
         }
-        
+
         foreach ((array) $data as $key => $value) {
             // se houver whitelist, ignore campos não permitidos
             if ($allowed !== null && !in_array((string) $key, $allowed, true)) {
@@ -73,7 +74,7 @@ abstract class Entity
                 && $this->atributes[$key] instanceof Entity
                 && (is_array($value) || is_object($value))
             ) {
-                
+
                 $this->atributes[$key]->fill($value, null, $overwrite);
                 continue;
             }
@@ -94,7 +95,7 @@ abstract class Entity
     {
         return $this->create->fill($data, $allowed, $overwrite);
     }
-    
+
     public function hash($password, $alg = PASSWORD_BCRYPT)
     {
         return Hash::make($password, $alg);

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Exame extends Model
 {
     protected $table = 'exames';
+    
     public $timestamps = false;
+    
     protected $fillable = [
         'paciente_id',
         'medico_id',

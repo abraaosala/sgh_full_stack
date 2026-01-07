@@ -130,9 +130,9 @@ class PacienteController extends Controller
          DB::commit();
          PostOld::clean();
          redirect('admin/pacientes', ['success', 'Paciente registrado com sucesso']);
-      } catch (\Exception $e) {
+      } catch (\Exception $exception) {
          DB::rollBack();
-         redirect('admin/pacientes', ['error', 'Erro ao cadastrar: ' . $e->getMessage()]);
+         redirect('admin/pacientes', ['error', 'Erro ao cadastrar: ' . $exception->getMessage()]);
       }
    }
 
@@ -190,13 +190,13 @@ class PacienteController extends Controller
       if ($validator->fails()) {
          PostOld::set($data);
          $_SESSION['input_errors'] = $validator->errors()->toArray();
-         redirect("admin/paciente-editar/$id", ['error', 'Verifique os erros no formulário.', 'danger']);
+         redirect('admin/paciente-editar/' . $id, ['error', 'Verifique os erros no formulário.', 'danger']);
       }
 
       // Check unique email excluding current user
       if (User::where('email', $data['email'])->where('id', '!=', $paciente->usuario_id)->exists()) {
          PostOld::set($data);
-         redirect("admin/paciente-editar/$id", ['error', 'O E-mail já está em uso por outro usuário.', 'danger']);
+         redirect('admin/paciente-editar/' . $id, ['error', 'O E-mail já está em uso por outro usuário.', 'danger']);
       }
 
       DB::beginTransaction();
@@ -218,10 +218,10 @@ class PacienteController extends Controller
          ]);
          DB::commit();
          PostOld::clean();
-         redirect("admin/paciente-editar/$id", ['success', 'Paciente atualizado com sucesso']);
-      } catch (\Exception $e) {
+         redirect('admin/paciente-editar/' . $id, ['success', 'Paciente atualizado com sucesso']);
+      } catch (\Exception $exception) {
          DB::rollBack();
-         redirect("admin/paciente-editar/$id", ['error', 'Falha ao atualizar: ' . $e->getMessage()]);
+         redirect('admin/paciente-editar/' . $id, ['error', 'Falha ao atualizar: ' . $exception->getMessage()]);
       }
    }
 

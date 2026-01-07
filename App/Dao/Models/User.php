@@ -23,16 +23,6 @@ class User extends Model
         'genero'
     ];
 
-    /**
-     * O construtor da classe.
-     * Define a tabela e chama o construtor da classe pai.
-     */
-    public function __construct($entity = null)
-    {
-
-        parent::__construct($entity);
-    }
-
     public function findbyEmail($email, $fields = '*')
     {
         return $this->select($fields)

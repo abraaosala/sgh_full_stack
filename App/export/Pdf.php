@@ -13,7 +13,7 @@ class Pdf implements DocumentExport
 
     public function exportar(array $data): void
     {
-        
+
         // Extrai o HTML do array de dados.
         if (!isset($data['html']) || !is_string($data['html'])) {
             throw new \InvalidArgumentException('O array de dados deve conter a chave "html" com uma string.');

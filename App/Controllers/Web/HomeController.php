@@ -7,9 +7,10 @@ use App\trait\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class HomeController 
+class HomeController
 {
      use View;
+
     public function index()
     {
         // TODO: implement index method
@@ -24,11 +25,11 @@ class HomeController
             'content' => 'Welcome to the Home Page!'
         ]));
     }
-    
+
     public function profile()
     {
       // Listar recursos
-      $logado = (int) htmlspecialchars(session()->get('id'));
+      $logado = (int) htmlspecialchars((string) session()->get('id'));
 
       $this->view(globals([
          'title' => 'Perfil de Usuario ' . $logado,
@@ -41,8 +42,8 @@ class HomeController
    public function profileEdit()
     {
 
-  
-      $logado = (int) htmlspecialchars(session()->get('id'));
+
+      $logado = (int) htmlspecialchars((string) session()->get('id'));
 
       $this->view(globals([
          'title' => 'Perfil de Usuario ' . $logado,
@@ -51,7 +52,7 @@ class HomeController
       ]), 'pages.edit_profile');
    }
 
-   
+
    public function profileSave()
    {}
 

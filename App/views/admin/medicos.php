@@ -77,7 +77,7 @@
                         <tr>
                             <td class="text-center"><?php echo $i + $tools->firstItem(); ?></td>
                             <td class="text-center">
-                                <img src="<?= avatar_url("{$medico->usuario->nome}") ?>"
+                                <img src="<?= avatar_url($medico->usuario->nome) ?>"
                                     alt="avatar" class="rounded-circle" width="40" height="40">
                             </td>
                             <td><?php echo htmlspecialchars((string) $medico->usuario->nome) ?? ''; ?>
@@ -97,11 +97,11 @@
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-primary me-1"
                                     onclick="eye(<?php echo $medico->id; ?>)"><i class="feather icon-eye"></i></button>
-                                <a href="<?= lnk("admin/medico-editar/{$medico->id}") ?>"
+                                <a href="<?= lnk('admin/medico-editar/' . $medico->id) ?>"
                                     class="btn btn-sm btn-outline-warning me-1" title="Editar">
                                     <i class="feather icon-edit"></i>
                                 </a>
-                                <a href="<?= lnk("admin/medico-excluir/{$medico->id}") ?>"
+                                <a href="<?= lnk('admin/medico-excluir/' . $medico->id) ?>"
                                     onclick="return confirm('Deseja realmente excluir este médico?')"
                                     class="btn btn-sm btn-outline-danger" title="Excluir">
                                     <i class="feather icon-trash-2"></i>

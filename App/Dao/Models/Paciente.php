@@ -24,16 +24,6 @@ class Paciente extends Model
     ];
 
     /**
-     * O construtor da classe.
-     * Define a tabela e chama o construtor da classe pai.
-     */
-    public function __construct($entity= null) {
-
-        parent::__construct($entity);
-
-    }
-
-    /**
      * Métodos específicos para o modelo Paciente podem ser adicionados aqui.
      *
      * Exemplo:

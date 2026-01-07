@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Tratamento extends Model
 {
     protected $table = 'tratamentos';
+    
     public $timestamps = false;
+    
     protected $fillable = [
         'diagnostico_id',
         'descricao',

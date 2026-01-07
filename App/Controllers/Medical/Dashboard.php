@@ -6,6 +6,7 @@ use App\trait\View;
 
 class Dashboard  {
     use View;
+    
     public function index (){
         
         $this->view(

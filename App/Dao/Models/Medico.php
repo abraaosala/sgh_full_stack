@@ -9,17 +9,7 @@ class Medico extends Model
     /**
      * O nome da tabela associada a este modelo.
      */
-    protected string $table = 'medicos'; 
-
-    /**
-     * O construtor da classe.
-     * Define a tabela e chama o construtor da classe pai.
-     */
-    public function __construct($entity= null) {
-
-        parent::__construct($entity);
-
-    }
+    protected string $table = 'medicos';
 
     /**
      * Métodos específicos para o modelo Medico podem ser adicionados aqui.
