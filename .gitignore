@@ -1,7 +1,7 @@
 # Arquivos e diretórios ignorados
 
 # Material de apoio
-Material/"
+Material/
 
 # Dependências do Composer
 vendor/

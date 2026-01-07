@@ -20,3 +20,10 @@ Route::get('/meu-perfil', [HomeController::class, 'profile']);
 // Route::get('/erro/[0-9]+', "ErrorPage::erro");
 Route::get('/editar-perfil', [HomeController::class,  'profileEdit']);
 Route::post('/perfil-update', [HomeController::class,  'profileSave']);
+
+
+
+require __DIR__ . '/auth.php';
+require __DIR__ . '/api.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/other.php';
