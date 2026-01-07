@@ -9,7 +9,7 @@
  * (AdminOnlyMiddleware). Todas as URLs começarão com /admin.
  */
 
-use App\controllers\ConsultaController;
+use App\Controllers\Web\ConsultaController;
 use App\Middleware\AdminMiddleware;
 use App\Middleware\AdminOnlyMiddleware;
 use App\Middleware\SuperAdminOnlyMiddleware;
@@ -83,7 +83,7 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     Route::get('/leito-excluir/[0-9]+', 'LeitoController::destroy');
 
     // Consultas 
-    Route::get('/consultas', [ConsultaController::class, 'indwx']);
+    Route::get('/consultas', [ConsultaController::class, 'index']);
     Route::delete('/zerar-consulta', 'Consulta::truncate');
 
 

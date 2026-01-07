@@ -9,25 +9,19 @@ use Dompdf\Options;
 
 class HomeController
 {
-     use View;
+   use View;
 
-    public function index()
-    {
-        // TODO: implement index method
-        $this->render([
-            'partials.header-html(medicio)',
-            'partials.header(medicio)',
-            'home',
-            'partials.footer',
-            'partials.footer-html(medicio)'
-        ], globals([
-            'title' => 'Home Page',
-            'content' => 'Welcome to the Home Page!'
-        ]));
-    }
+   public function index()
+   {
+      // Renderiza usando BladeOne (View Wrapper)
+      \App\library\View::render('home', globals([
+         'title' => 'Home Page',
+         'content' => 'Welcome to the Home Page!'
+      ]));
+   }
 
-    public function profile()
-    {
+   public function profile()
+   {
       // Listar recursos
       $logado = (int) htmlspecialchars((string) session()->get('id'));
 
@@ -40,7 +34,7 @@ class HomeController
 
 
    public function profileEdit()
-    {
+   {
 
 
       $logado = (int) htmlspecialchars((string) session()->get('id'));
@@ -53,9 +47,5 @@ class HomeController
    }
 
 
-   public function profileSave()
-   {}
-
-  
-    
+   public function profileSave() {}
 }

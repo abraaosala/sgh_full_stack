@@ -580,7 +580,7 @@ function message($key = null)
     return $message;
 }
 
-function config(): Config
+function  config(): Config
 {
     $instance = null;
     if (is_null($instance)) {

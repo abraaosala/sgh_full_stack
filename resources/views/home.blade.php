@@ -1,3 +1,6 @@
+@extends('layouts.landing')
+
+@section('content')
 <main class="main">
 
     <!-- Hero Section -->
@@ -1123,5 +1126,5 @@
 
     </section><!-- /Contact Section -->
 
-
 </main>
+@endsection

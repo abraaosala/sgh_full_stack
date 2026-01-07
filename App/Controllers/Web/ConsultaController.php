@@ -1,6 +1,6 @@
 <?php
 
-namespace App\controllers;
+namespace App\Controllers\Web;
 
 use App\classes\Json;
 use App\Dao\Entity\ConsultaEntity;
