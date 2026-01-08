@@ -1,6 +1,6 @@
 <?php
 
-namespace App\controllers;
+namespace App\Controllers\Patient;
 
 use App\classes\Export;
 use Dompdf\Dompdf;
@@ -19,7 +19,7 @@ use App\export\Pdf;
 use App\Http\BaseController as Controller;
 use DateTime;
 
-class PcConsultaController extends Controller
+class ConsultaController extends Controller
 {
 
 
@@ -27,28 +27,58 @@ class PcConsultaController extends Controller
    // Métodos padrão de controllers RESTful
    public function index()
    {
+      $idUser = session()->get('id');
+      $paciente = userPerfil($idUser, 'paciente');
 
-      // dd($consultas[0]);
-      $this->view(
-         globals([
-            'title' => 'Agendamento'
-         ]),
-         'pacientes.consultas'
-      );
+      if (!$paciente) {
+         redirect('/logout');
+      }
 
-      // Listar recursos
+      $consultas = \App\Models\Consulta::with(['medico.usuario', 'medico.especialidade'])
+         ->doPaciente($paciente->id)
+         ->orderBy('id', 'desc')
+         ->get();
+
+      \App\library\View::render('paciente.consultas.index', globals([
+         'title' => 'Minhas Consultas',
+         'consultas' => $consultas
+      ]));
    }
 
    public function show($params)
    {
+      $idUser = session()->get('id');
+      $paciente = userPerfil($idUser, 'paciente');
 
-      // Exibir recurso específico
+      if (!$paciente) {
+         redirect('/logout');
+      }
 
+      $id = $params['consulta'] ?? null; // Adjusting based on how Router passes params
+
+      $consulta = \App\Models\Consulta::with(['medico.usuario', 'medico.especialidade', 'paciente.usuario'])
+         ->where('id', $id)
+         ->where('paciente_id', $paciente->id)
+         ->first();
+
+      if (!$consulta) {
+         redirect('/paciente/consultas');
+      }
+
+      \App\library\View::render('paciente.consultas.show', globals([
+         'title' => 'Detalhes da Consulta',
+         'consulta' => $consulta
+      ]));
    }
 
    public function create()
    {
-      // Formulário para criar novo recurso
+      $especialidades = \App\Models\Especialidade::all();
+
+      \App\library\View::render('paciente.consultas.create', globals([
+         'title' => 'Nova Consulta',
+         'especialidades' => $especialidades
+      ]));
    }
 
    public function store()
@@ -57,31 +87,44 @@ class PcConsultaController extends Controller
       $model = new Consulta(ConsultaEntity::class);
       $idUser = session()->get('id');
       $paciente = userPerfil($idUser, 'paciente');
-      // Salvar novo recurso
-      $data = json_decode(file_get_contents('php://input'), true);
-      // print_r($data);   
 
-      $model->setEntity()->paciente_id = $paciente->id;
-      $model->setEntity()->medico_id = $data['medico_id'];
-      $model->setEntity()->agenda_id = $data['agenda_id'];
-      $model->setEntity()->marcacao = $data['marcacao'];
+      $idUser = session()->get('id');
+      $paciente = userPerfil($idUser, 'paciente');
 
-      $model->setEntity()->observacao = $data['observacao'] ?? null;
-      $model->setEntity()->status = 'C';
-
-
-      $data = [];
-
-      if ($model->store()) {
-         $data['status'] = true;
-         $data['message'] = 'Agendamento confirmado com sucesso!';
-      } else {
-         # code...
-         $data['status'] = false;
-         $data['message'] = 'Erro ao confirmar o agendamento!';
+      if (!$paciente) {
+         echo json_encode(['status' => false, 'message' => 'Paciente não autenticado.']);
+         return;
       }
 
-      echo json_encode($data);
+      $data = json_decode(file_get_contents('php://input'), true);
+      // Validação básica
+      if (empty($data['medico_id']) || empty($data['marcacao'])) {
+         echo json_encode(['status' => false, 'message' => 'Preencha todos os campos obrigatórios.']);
+         return;
+      }
+
+      // TODO: Verificar disponibilidade na Agenda do médico (opcional por enquanto)
+      // Como o sistema antigo usava 'agenda_id', teríamos que logicamente encontrar ou criar um slot.
+      // Simplificando para criar um registro de consulta direto.
+
+      try {
+         $consulta = \App\Models\Consulta::create([
+            'paciente_id' => $paciente->id,
+            'medico_id' => $data['medico_id'],
+            // 'agenda_id' => 1, // Placeholder: Deveria ser vinculado a um slot real de agenda
+            'marcacao' => $data['marcacao'],
+            'observacao' => $data['observacao'] ?? null,
+            // 'status' => 'Agendada' // Status inicial
+         ]);
+
+         if ($consulta) {
+            echo json_encode(['status' => true, 'message' => 'Agendamento solicitado com sucesso!']);
+         } else {
+            echo json_encode(['status' => false, 'message' => 'Erro ao salvar no banco.']);
+         }
+      } catch (\Exception $e) {
+         echo json_encode(['status' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
+      }
    }
 
    public function edit($params)
@@ -110,7 +153,7 @@ class PcConsultaController extends Controller
          ->join(User::class, 'medicos.usuario_id', '=', 'u.id', 'u')
          ->get();
 
-      $especial = new Especialidade()->all();
+      $especial = (new Especialidade())->all();
       $medicosConvertidos = Json::convertData($medicos);
       Json::convertData($especial);
 
@@ -154,7 +197,7 @@ class PcConsultaController extends Controller
       $id = $paciente->id;
 
       header(API);
-      $model = new Consulta()
+      $model = (new Consulta())
          ->select("consultas.*, medicos.id mid,  usuarios.nome medico, especialidades.nome especialidade")
          ->where('paciente_id', '=', $id)
          ->join(Medico::class, 'consultas.medico_id', '=', 'medicos.id')
@@ -179,6 +222,72 @@ class PcConsultaController extends Controller
 
       //  $consultas= array_unique($consultas); 
       echo  json_encode($consultas, true);
+   }
+
+   public function emitir($params)
+   {
+
+      $idUser = session()->get('id');
+      $p = userPerfil($idUser, 'paciente');
+
+      $pdfStoragePath = ROOT . '/public/pdfs/';
+      if (!is_dir($pdfStoragePath)) {
+         mkdir($pdfStoragePath, 0777, true);
+      }
+
+      $id = $params['emitir'];
+      $consultas = \App\Models\Consulta::with(['paciente.usuario', 'medico.usuario', 'medico.especialidade'])
+         ->doPaciente($p->id)
+         ->where('id', $id)
+         ->orderBy('id', 'desc')
+         ->first();
+
+
+      $consultation = $consultas;
+
+      $consultation->estado_formatado = $consultation->status;
+
+      $consultationDate = (new DateTime($consultation->marcacao))->format('d/m/Y');
+      $consultation->hora = (new DateTime($consultation->marcacao))->format('H:i:s');
+      $patientBirthDate = (new DateTime($consultation->paciente->usuario->data_nascimento))->format('d/m/Y');
+
+      $options = new Options();
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', true);
+
+      // $html = '...';  // seu HTML conforme antes
+      $html = $this->content([
+         'document.consult'
+      ], [
+         'consulta' => $consultation,
+         'consultationDate' => $consultationDate,
+         'patientBirthDate' => $patientBirthDate
+      ]);  // seu HTML conforme antes
+
+      $pdf = new Export(Pdf::class);
+      $pdf->export([
+         'html' => $html,
+         'nome_arquivo' => sprintf('ficha_consulta_%s_paciente_%s_', $consultation->id, $p->id),
+         'download' => false
+
+      ]);
+      exit;
+      // $dompdf = new Dompdf($options);
+      // $dompdf->loadHtml($html);
+      // $dompdf->setPaper('A4', 'portrait');
+      // $dompdf->render();
+
+      // // Salva o PDF no servidor
+      // $fileName = sprintf('ficha_consulta_%s_paciente_%s_', $consultation->id, $p->id) . ".pdf";
+      // $relativePath = '/pdfs/' . $fileName;
+      // $absolutePath = ROOT . '/public' . $relativePath;
+
+      // file_put_contents($absolutePath, $dompdf->output());
+
+
+
+
+
    }
 
    public function print()
@@ -210,7 +319,7 @@ class PcConsultaController extends Controller
       }
 
       // Obtém dados da consulta (seu modelo existente)
-      $model = new Consulta()
+      $model = (new Consulta())
          ->select("consultas.*, medicos.id mid, 
          usuarios.nome medico_nome, especialidades.nome medico_especialidade, 
          pacientes.data_nascimento, pu.nome paciente_nome")
@@ -233,7 +342,7 @@ class PcConsultaController extends Controller
       }
 
       $consultation = convertData($model);
-      $consultation['estado_formatado']= agendaStatus($consultation['status']);
+      $consultation['estado_formatado'] = agendaStatus($consultation['status']);
 
       $consultationDate = (new DateTime($consultation['marcacao']))->format('d/m/Y');
       $consultation['hora'] = (new DateTime($consultation['marcacao']))->format('H:i:s');
@@ -244,12 +353,12 @@ class PcConsultaController extends Controller
       $options->set('isRemoteEnabled', true);
 
       // $html = '...';  // seu HTML conforme antes
-        $html = $this->content([
+      $html = $this->content([
          'document.consult'
-      ],[
-         'consulta'=>$consultation,
-         'consultationDate'=>$consultationDate, 
-         'patientBirthDate'=> $patientBirthDate
+      ], [
+         'consulta' => $consultation,
+         'consultationDate' => $consultationDate,
+         'patientBirthDate' => $patientBirthDate
       ]);  // seu HTML conforme antes
 
 
@@ -267,7 +376,7 @@ class PcConsultaController extends Controller
 
       // Aqui **não fazer** stream() ou qualquer outro envio de saída extra
 
-      // Envia apenas JSON
+      // Envia apenas JSONp
       http_response_code(200);
       echo json_encode([
          'success' => true,
