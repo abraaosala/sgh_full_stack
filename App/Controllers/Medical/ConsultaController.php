@@ -1,6 +1,6 @@
 <?php
 
-namespace App\controllers;
+namespace App\Controllers\Medical;
 
 use App\Dao\Models\Agenda;
 use App\Dao\Models\Consulta;
@@ -9,20 +9,29 @@ use App\Dao\Models\Paciente;
 use App\Dao\Models\User;
 use App\Http\BaseController as Controller;
 
-
-
-class MedConsultaController extends Controller
+class ConsultaController extends Controller
 {
 
 
    // Métodos padrão de controllers RESTful
    public function index()
    {
+      $idUser = session()->get('id');
+      $medico = userPerfil($idUser, 'medico');
 
-      // Listar recursos
-      $this->view(globals([
-         'title' => "Consultas agendados"
-      ]), 'medico.consulta');
+      if (!$medico) {
+         redirect('/logout'); // Ou tratar erro adequadamente
+      }
+
+      $consultas = \App\Models\Consulta::with(['paciente.usuario', 'agenda'])
+         ->doMedico($medico->id)
+         ->orderBy('id', 'desc')
+         ->get();
+
+      \App\library\View::render('medico.consultas.index', globals([
+         'title' => "Minhas Consultas",
+         'consultas' => $consultas
+      ]));
    }
 
    public function api($params)
@@ -33,8 +42,7 @@ class MedConsultaController extends Controller
       // $id = userPerfil($idUser, 'medico')->id;
 
       //
-      $model = new Consulta()
-
+      $model = (new Consulta())
          ->select(
             'consultas.*, pacientes.id as pid, pu.nome as pnome, usuarios.nome medico_nome, agendas.start'
          )
