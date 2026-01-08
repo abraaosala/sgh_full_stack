@@ -81,11 +81,11 @@
         <table class="data-table">
             <tr>
                 <th>Nome</th>
-                <td><?= htmlspecialchars((string) $consulta['paciente_nome']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta?->paciente?->usuario?->nome) ?></td>
             </tr>
             <!--   <tr>
             <th>NIF</th>
-            <td><?= htmlspecialchars((string) $consulta['paciente_nif']) ?></td>
+            <td><?= htmlspecialchars((string) $consulta->paciente?->usuario?->nif) ?></td>
         </tr> -->
             <tr>
                 <th>Data de Nascimento</th>
@@ -99,7 +99,7 @@
         <table class="data-table">
             <tr>
                 <th>ID da Consulta</th>
-                <td><?= htmlspecialchars((string) $consulta['id']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta->id) ?></td>
             </tr>
             <tr>
                 <th>Data</th>
@@ -107,30 +107,30 @@
             </tr>
             <tr>
                 <th>Hora</th>
-                <td><?= htmlspecialchars((string) $consulta['hora']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta->hora) ?></td>
             </tr>
             <tr>
                 <th>Médico</th>
-                <td><?= htmlspecialchars((string) $consulta['medico_nome']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta->medico->usuario->nome) ?></td>
             </tr>
             <tr>
                 <th>Especialidade</th>
-                <td><?= htmlspecialchars((string) $consulta['medico_especialidade']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta->medico->especialidade->nome) ?></td>
             </tr>
             <!-- <tr>
             <th>Clínica</th>
-            <td><?= htmlspecialchars((string) $consulta['clinica']) ?></td>
+            <td><?= htmlspecialchars((string) $consulta->clinica) ?></td>
         </tr> -->
             <tr>
                 <th>Estado</th>
-                <td><?= htmlspecialchars((string) $consulta['estado_formatado']) ?></td>
+                <td><?= htmlspecialchars((string) $consulta->estado_formatado) ?></td>
             </tr>
         </table>
     </div>
 
     <div class="section">
         <h2>Notas da Consulta</h2>
-        <div class="notes"><?= nl2br(htmlspecialchars($consulta['notas'] ?? 'N/A')) ?></div>
+        <div class="notes"><?= nl2br(htmlspecialchars($consulta->observacao ?? 'N/A')) ?></div>
     </div>
 
     <div class="footer">

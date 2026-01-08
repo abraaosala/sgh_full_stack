@@ -22,11 +22,15 @@ class ConsultaController extends Controller
    // Métodos padrão de controllers RESTful
    public function index()
    {
+      $consultas = \App\Models\Consulta::with(['paciente.usuario', 'medico.usuario', 'agenda'])
+         ->orderBy('id', 'desc')
+         ->get();
 
       // Listar recursos
-      $this->view(globals([
-         'title' => "Consultas agendados"
-      ]), 'admin.consulta');
+      \App\library\View::render('admin.consultas.index', globals([
+         'title' => "Consultas Agendadas",
+         'consultas' => $consultas
+      ]));
    }
 
    public function show($params) {}
@@ -34,7 +38,7 @@ class ConsultaController extends Controller
    public function api($params)
    {
 
-      
+
       $model = (new Consulta())
          ->select(
             'consultas.*, pacientes.id as pid, pu.nome as pnome, usuarios.nome medico_nome, agendas.start, especialidades.nome especialidade'
@@ -52,7 +56,7 @@ class ConsultaController extends Controller
          # code...
          $idUser = session()->get('id');
          $med = userPerfil($idUser, 'medico');
-         $id= $med->id;
+         $id = $med->id;
          $model->where('consultas.medico_id', '=', $id);
       }
 
@@ -127,7 +131,7 @@ class ConsultaController extends Controller
    {
 
       $model = new Consulta(ConsultaEntity::class);
-      $entity= $model->setEntity();
+      $entity = $model->setEntity();
       // Salvar novo recurso
       $data = sanitizeInput(json_decode(file_get_contents("php://input"), true));;
 
