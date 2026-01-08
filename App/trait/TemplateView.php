@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 namespace App\trait;
-trait TemplateView
+trait   TemplateView
 {
     /**
      * Limpa os dados de entrada para prevenir ataques XSS.

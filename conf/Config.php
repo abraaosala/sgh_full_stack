@@ -51,11 +51,11 @@ define('APP', [
 ]);
 
 define('HOSPITAL', [
-    'name'=>'Hospital Municipal do Soyo',
-    'street'=>'Rua a Direita ',
-    'nif'=>54843900,
-    'tel'=> "(+244) 9xx xxx xxx (+244) 9xx xxx xxx",
-    'email'=>'contact@hms.com'
+    'name' => 'Hospital Municipal do Soyo',
+    'street' => 'Rua a Direita ',
+    'nif' => 54843900,
+    'tel' => "(+244) 9xx xxx xxx (+244) 9xx xxx xxx",
+    'email' => 'contact@hms.com'
 ]);
 
 

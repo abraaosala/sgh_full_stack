@@ -38,8 +38,12 @@ Illuminate\Pagination\Paginator::currentPageResolver(function ($pageName = 'page
 
 // require "phinx.php";
 
-if (env('APP_PRODUCTION', 'APP_PRODUCTION') === 'true') {
+if (true) { // Force error display for debugging
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
 
+    /* 
     error_log("Você cometeu um erro!", E_ALL, "my-errors.log");
     ini_set('display_errors', 0);
     ini_set('display_startup_errors', 0);
@@ -50,12 +54,13 @@ if (env('APP_PRODUCTION', 'APP_PRODUCTION') === 'true') {
         $caminho = $_SERVER['REQUEST_URI'] ?? '';
 
         if (in_array($errno, [E_NOTICE, E_WARNING, E_USER_NOTICE, E_USER_WARNING])) {
-            if (strpos($caminho, '/error/500') === false) {
+            if (str_contains((string) $caminho, '/error/500') === false) {
                 header("Location: /error/500");
                 exit;
             }
         }
     });
+    */
 
 
     // Captura erros fatais no fim do script

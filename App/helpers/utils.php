@@ -73,6 +73,23 @@ function lnk(string $rota = '', bool $bar = false): string
 }
 
 // ------------------------------------------------------------
+function lnk_dashboard(): string
+{
+    $perfil = session()->get('perfil');
+
+    $route = match ($perfil) {
+        'admin', 'superadmin' => ROUTE_ADMIN_HOME,
+        'medico' => ROUTE_MEDICO_HOME,
+        'enfermeiro' => ROUTE_ENFERMEIRO_HOME,
+        'recepcionista' => ROUTE_RECEPCAO_HOME,
+        'paciente' => ROUTE_PACIENTE_HOME,
+        default => 'dashboard'
+    };
+
+    return lnk($route);
+}
+
+// ------------------------------------------------------------
 
 function logged(): bool
 {
@@ -83,22 +100,22 @@ function logged(): bool
 // ------------------------------------------------------------
 function router(Router $router)
 {
-    
 
-    $uri= $router->getUri();
+
+    $uri = $router->getUri();
 
     try {
         return $router->router();
     } catch (Throwable $throwable) {
         if (str_contains((string) $uri, 'api')) {
             response()->json([
-                'success'=>false,
-                'detail'=> $throwable->getMessage(),
-                'line'=> $throwable->getLine(),
-                'trace'=> $throwable->getTrace()
+                'success' => false,
+                'detail' => $throwable->getMessage(),
+                'line' => $throwable->getLine(),
+                'trace' => $throwable->getTrace()
 
             ], 400);
-        }else{
+        } else {
 
             (new ErrorPage())->in(404, $throwable);
             exit;
@@ -394,8 +411,6 @@ function divAlert($content, $type)
 }
 
 // ------------------------------------------------------------
-/* PROCURAR USUARIO NA DB */
-/* CHECAR SENHA COM HASH */
 /**
  * Redirecionamento junto flass message
  *
@@ -731,6 +746,12 @@ function filter_users_exclude(array $all, ?string $exclude = null)
 function csrf_field(): string
 {
     return (new Csrf())->field();
+}
+
+// -------------------------------------------------------------
+function csrf_token(): string
+{
+    return (new Csrf())->getToken();
 }
 
 // -------------------------------------------------------------
