@@ -75,15 +75,16 @@ Route::group(['prefix' => '/admin', 'middleware' => [
 
 
     //Leito
-    Route::get('/leitos', 'LeitoController::index');
-    Route::get('/leito-criar', 'LeitoController::create');
-    Route::post('/leito-store', 'LeitoController::store');
-    Route::get('/leito-editar/[0-9]+', 'LeitoController::edit');
-    Route::post('/leito-update/[0-9]+', 'LeitoController::update');
-    Route::get('/leito-excluir/[0-9]+', 'LeitoController::destroy');
+    Route::get('/leitos', \App\Controllers\Admin\LeitoController::class . '::index');
+    Route::get('/leito-criar', \App\Controllers\Admin\LeitoController::class . '::create');
+    Route::post('/leito-store', \App\Controllers\Admin\LeitoController::class . '::store');
+    Route::get('/leito-editar/[0-9]+', \App\Controllers\Admin\LeitoController::class . '::edit');
+    Route::post('/leito-update/[0-9]+', \App\Controllers\Admin\LeitoController::class . '::update');
+    Route::get('/leito-excluir/[0-9]+', \App\Controllers\Admin\LeitoController::class . '::destroy');
 
     // Consultas 
     Route::get('/consultas', [ConsultaController::class, 'index']);
+    Route::get('/consulta/[0-9]+', [ConsultaController::class, 'show']);
     Route::delete('/zerar-consulta', 'Consulta::truncate');
 
 
