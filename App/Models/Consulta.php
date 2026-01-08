@@ -7,16 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class Consulta extends Model
 {
     protected $table = 'consultas';
-    
+
     public $timestamps = false;
-    
+
     protected $fillable = [
         'paciente_id',
         'medico_id',
-        'data_consulta',
-        'motivo',
-        'observacoes'
+        'agenda_id',
+        'marcacao',
+        'observacao',
+        'status'
     ];
+
+    public function agenda()
+    {
+        return $this->belongsTo(Agenda::class, 'agenda_id');
+    }
 
     public function paciente()
     {
@@ -26,5 +32,16 @@ class Consulta extends Model
     public function medico()
     {
         return $this->belongsTo(Medico::class, 'medico_id');
+    }
+
+    // Scopes
+    public function scopeDoPaciente($query, $pacienteId)
+    {
+        return $query->where('paciente_id', $pacienteId);
+    }
+
+    public function scopeDoMedico($query, $medicoId)
+    {
+        return $query->where('medico_id', $medicoId);
     }
 }
