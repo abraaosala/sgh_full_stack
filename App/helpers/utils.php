@@ -68,6 +68,7 @@ function getNames(object|string $class): string
 function lnk(string $rota = '', bool $bar = false): string
 {
     $base = root();
+    $rota = ltrim($rota, '/');
 
     return  $bar ? sprintf('%s/%s', $base, $rota) : $base . $rota;
 }
@@ -420,6 +421,7 @@ function divAlert($content, $type)
 function redirect(string $redirect = '', ?array $flass = []): void
 {
     $root = root();
+    $redirect = ltrim($redirect, '/');
     if ($flass !== null && $flass !== []) {
         [$chave, $messagem, $tipo] = $flass;
         FlashMessage::set($chave, $messagem, $tipo ?? 'success');

@@ -32,7 +32,7 @@ class MedicoController extends Controller
          'keywords' => 'Gerir, Medicos, Listar'
       ];
 
-      $this->view(globals($data), 'admin.medicos');
+      $this->view(globals($data), 'admin.medicos.index');
    }
 
    public function create()
@@ -50,7 +50,7 @@ class MedicoController extends Controller
          'provincias' => $provincias,
          'especialidades' => $especialidades
       ];
-      $this->view(globals($data), 'admin.criar-medico');
+      $this->view(globals($data), 'admin.medicos.create');
    }
 
    public function show($params)
@@ -173,7 +173,7 @@ class MedicoController extends Controller
          'provincias' => $provincias,
          'especialidades' => $especialidades
       ];
-      $this->view(globals($data), 'admin.medico-editar');
+      $this->view(globals($data), 'admin.medicos.create');
    }
 
    public function update($params)
@@ -279,3 +279,4 @@ class MedicoController extends Controller
       $this->export($data, $type);
    }
 }
+ 

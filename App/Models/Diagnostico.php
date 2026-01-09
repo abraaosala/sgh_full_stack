@@ -7,15 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Diagnostico extends Model
 {
     protected $table = 'diagnosticos';
-    
-    public $timestamps = false;
-    
+
+    public $timestamps = false; // Check if it has timestamps later, assuming false for now
+
     protected $fillable = [
         'paciente_id',
         'medico_id',
         'doenca_id',
         'data_diagnostico',
-        'observacoes'
+        'observacoes',
+        'status'
     ];
 
     public function paciente()
@@ -31,10 +32,5 @@ class Diagnostico extends Model
     public function doenca()
     {
         return $this->belongsTo(Doenca::class, 'doenca_id');
-    }
-
-    public function tratamentos()
-    {
-        return $this->hasMany(Tratamento::class, 'diagnostico_id');
     }
 }

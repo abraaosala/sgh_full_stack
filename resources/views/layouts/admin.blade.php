@@ -56,8 +56,10 @@
     @include('layouts.partials.footer')
 
     <!-- [Scripts] -->
-    <script src="{{ asset('js/plugins/apexcharts.min.js', true) }}"></script>
-    <script src="{{ asset('js/pages/dashboard-default.js', true) }}"></script>
+    @if (isset($dashboard) && $dashboard)
+        <script src="{{ asset('js/plugins/apexcharts.min.js', true) }}"></script>
+        <script src="{{ asset('js/pages/dashboard-default.js', true) }}"></script>
+    @endif
     <script src="{{ asset('js/plugins/popper.min.js', true) }}"></script>
     <script src="{{ asset('js/plugins/simplebar.min.js', true) }}"></script>
     <script src="{{ asset('js/plugins/sweetalert2.all.min.js', true) }}"></script>

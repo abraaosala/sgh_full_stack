@@ -12,16 +12,5 @@ class Diagnostico extends Model
      */
     protected string $table = 'diagnosticos';
 
-    /**
-     * Métodos específicos para o modelo Diagnostico podem ser adicionados aqui.
-     *
-     * Exemplo:
-     *
-     * public function findbyEmail($emailId)
-     * {
-     *       return $this->select($fields)
-     *     ->where('email', '=', $emailId)
-     *     ->first();
-     * }
-     */
+
 }

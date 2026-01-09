@@ -34,7 +34,7 @@ class PacienteController extends Controller
          'keywords' => 'Gerir, Pacientes, Listar'
       ];
 
-      $this->view(globals($data), 'admin.pacientes');
+      $this->view(globals($data), 'admin.pacientes.index');
    }
 
    public function show($params)
@@ -69,7 +69,7 @@ class PacienteController extends Controller
          'keywords' => 'Gerir, Pacientes, Listar',
          'provincias' => $provincias
       ];
-      $this->view(globals($data), 'admin.criar-paciente');
+      $this->view(globals($data), 'admin.pacientes.create');
    }
 
    public function store()
@@ -159,13 +159,13 @@ class PacienteController extends Controller
          'description' => 'Editar O Usuario',
          'keywords' => 'Editar, Usuario, Alterar',
       ];
-      $this->view(globals($data), 'admin.paciente-edit');
+      $this->view(globals($data), 'admin.pacientes.create');
    }
 
    public function update($params)
    {
       $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
-      $id = (int) $data['id'];
+      $id = (int) ($params['paciente-update'] ?? $params['paciente-save'] ?? $data['id'] ?? 0);
 
       if ($id === 0) {
          redirect('admin/pacientes', ['error', 'Paciente não encontrado', 'danger']);
@@ -203,7 +203,7 @@ class PacienteController extends Controller
 
       try {
          // Update User (data_nascimento here)
-        $saveU =  $paciente->usuario()->update([
+         $saveU =  $paciente->usuario()->update([
             'nome' => $data['nome'],
             'email' => lower($data['email']),
             'genero' => $data['genero'],
@@ -211,14 +211,14 @@ class PacienteController extends Controller
          ]);
 
          // Update Paciente
-         $saveP= $paciente->update([
+         $saveP = $paciente->update([
             'telefone' => $data['telefone'],
             'endereco' => $data['endereco'],
             'provincia_id' => $data['provincia_id']
          ]);
          DB::commit();
          PostOld::clean();
-         redirect('admin/paciente-editar/' . $id, ['success', 'Paciente atualizado com sucesso']);
+         redirect('admin/pacientes', ['success', 'Paciente atualizado com sucesso']);
       } catch (\Exception $exception) {
          DB::rollBack();
          redirect('admin/paciente-editar/' . $id, ['error', 'Falha ao atualizar: ' . $exception->getMessage()]);
@@ -243,7 +243,7 @@ class PacienteController extends Controller
       $pacientes = Paciente::with(['usuario', 'provincia'])->get();
 
       // dd($pacientes);
-      
+
       $data = [];
       $data['view'] = 'document.pacientes';
       $data['data'] = [

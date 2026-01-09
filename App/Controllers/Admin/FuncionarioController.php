@@ -22,16 +22,14 @@ class FuncionarioController extends Controller
    {
 
 
-      $func =( new User())->select()
-         ->in('perfil', $this->perfil)
-         ->paginate(5);
-
-      // dd($func);
+      $func = \App\Models\User::whereIn('perfil', $this->perfil)->paginate(5);
+      $func->setPath(lnk('admin/funcionarios'));
+      
       $this->view(globals([
          'title' => 'Todos Funcionários',
-         'usuarios' => $func?->Items,
+         'usuarios' => $func->items(),
          'tools' => $func
-      ]), 'admin.func');
+      ]), 'admin.funcionarios.index');
    }
 
    public function show($params)
@@ -55,7 +53,7 @@ class FuncionarioController extends Controller
             'provincias' => $provincias,
             'funcionarios' => ['Enfermeiro', 'Recepcionista']
          ]
-      ), 'admin.func-criar');
+      ), 'admin.funcionarios.create');
    }
 
    public function store()
@@ -65,8 +63,8 @@ class FuncionarioController extends Controller
       $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS));
       // Validar CSRF
       if (!csrf()->isValid($data['csrf_token'])) {
-          // Redirecionar com mensagem de erro se o token for inválido
-          redirect('admin/funcionario-criar', ['error', 'Erro ao processar o formulário. Por favor, tente novamente.', 'danger']);
+         // Redirecionar com mensagem de erro se o token for inválido
+         redirect('admin/funcionario-criar', ['error', 'Erro ao processar o formulário. Por favor, tente novamente.', 'danger']);
       }
 
       unset($data['csrf_token']);
@@ -92,21 +90,21 @@ class FuncionarioController extends Controller
       $validate = validator($data);
 
       $validate
-            ->Roles('nome', 'required', "Campo nome é Obrigatório")
-            ->Roles('email', 'required', "Campo email é Obrigatório")
-            ->Roles('email', 'email', "Não é compativel ao um email ex:exemplo@dominio.com")
-            ->Roles('numero_ordem', 'required', "Campo Numero da ordem é Obrigatório");
+         ->Roles('nome', 'required', "Campo nome é Obrigatório")
+         ->Roles('email', 'required', "Campo email é Obrigatório")
+         ->Roles('email', 'email', "Não é compativel ao um email ex:exemplo@dominio.com")
+         ->Roles('numero_ordem', 'required', "Campo Numero da ordem é Obrigatório");
 
-         if (!$validate->validation()) {
+      if (!$validate->validation()) {
          PostOld::set($_POST);
-         $errors= $validate->getErrors();
-         $erros= iteraErrorValidator($errors);
+         $errors = $validate->getErrors();
+         $erros = iteraErrorValidator($errors);
          // $error= explode('<br> ', $erros);
          // unset()
          // dd($error);
          // $erros = Str::implode($errors);
          // dd($_SESSION);
-         redirect('admin/funcionario-criar', ['error',$erros , 'danger']);
+         redirect('admin/funcionario-criar', ['error', $erros, 'danger']);
       }
 
 
@@ -116,13 +114,13 @@ class FuncionarioController extends Controller
       }
 
       // entity_itera($userData, $user->setEntity());
-    $uentity= $user->setEntity();
-    $fentity= $funcionario->setEntity();
+      $uentity = $user->setEntity();
+      $fentity = $funcionario->setEntity();
 
-    entity_itera($userData, $uentity);
+      entity_itera($userData, $uentity);
 
 
-    $senha = Password::generate(2);
+      $senha = Password::generate(2);
       $uentity->senha = Password::hash($senha);
       $file = manager();
 
@@ -134,10 +132,10 @@ class FuncionarioController extends Controller
          ]);
       }
 
-          entity_itera($funcionarioData, $fentity);
+      entity_itera($funcionarioData, $fentity);
 
 
-       // Iniciar transação (se disponível)
+      // Iniciar transação (se disponível)
       // $user->beginTransaction();
 
       //Armazenar Usuario funcionario
@@ -156,14 +154,14 @@ class FuncionarioController extends Controller
 
             PostOld::clean();
          } else {
-            redirect('admin/funcionarios', ['error', 'Funcionario não Cadastrado','danger']);
+            redirect('admin/funcionarios', ['error', 'Funcionario não Cadastrado', 'danger']);
          }
       } else {
          redirect('admin/funcionarios', ['error', 'Usuario não Cadastrado', 'danger']);
       }
 
 
-//  dd($user);     
+      //  dd($user);     
 
    }
 

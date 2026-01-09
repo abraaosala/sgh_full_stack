@@ -2,11 +2,14 @@
 
 namespace App\Http;
 
-use App\trait\TemplateView as View;
+use App\library\View;
 
 abstract class BaseController
 {
-    use View;
+    public function view(array $data, string $view = 'dashboard')
+    {
+        View::render($view, $data);
+    }
 
     // Métodos padrão de controllers RESTful
     // Listar recursos

@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Doenca extends Model
 {
     protected $table = 'doencas_respiratorias';
-    
+
     public $timestamps = false;
-    
+
     protected $fillable = [
         'nome',
-        'descricao'
+        'descricao',
+        'icon'
     ];
 
     public function diagnosticos()

@@ -32,7 +32,8 @@ class AdminController
     \App\library\View::render('admin.dashboard', globals([
       'title' => 'Painel Administrativo',
       'stats' => $stats,
-      'recentConsultas' => $recentConsultas
+      'recentConsultas' => $recentConsultas,
+      'dashboard' => true
     ]));
   }
 }

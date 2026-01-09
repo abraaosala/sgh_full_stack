@@ -19,7 +19,7 @@ use App\Middleware\AuthMiddleware;
 use App\Models\Consulta;
 
 Route::group(['prefix' => '/admin', 'middleware' => [
-    AuthMiddleware::class, 
+    AuthMiddleware::class,
     AdminOnlyMiddleware::class
 ]], function () {
 
@@ -36,7 +36,7 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     //Api de Usuarios
     Route::get('/api/usuarios', "UserController::list");
 
-    
+
 
     // Medicos(Admin)
     Route::get('/medicos', \App\Controllers\Medical\MedicoController::class . '::index');
@@ -49,11 +49,9 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     Route::get('/medico-excluir/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::destroy');
     Route::get('/medico-export', \App\Controllers\Medical\MedicoController::class . '::exporte');
 
-    Route::post('agenda-med-gerar', function (){
-        
-    });
+    Route::post('agenda-med-gerar', function () {});
 
-    
+
     Route::get('/pacientes', \App\Controllers\Patient\PacienteController::class . '::index');
     Route::get('/agenda', "Reception\\AgendaController::index");
 
@@ -87,7 +85,11 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     Route::get('/consulta/[0-9]+', [ConsultaController::class, 'show']);
     Route::delete('/zerar-consulta', 'Consulta::truncate');
 
+    // Diagnósticos
+    Route::get('/diagnosticos', \App\Controllers\Admin\DiagnosticoController::class . '::index');
+    Route::get('/diagnostico/[0-9]+', \App\Controllers\Admin\DiagnosticoController::class . '::show');
+    Route::get('/diagnostico-excluir/[0-9]+', \App\Controllers\Admin\DiagnosticoController::class . '::delete');
 
-
-    
+    // Relatórios
+    Route::get('/relatorios', \App\Controllers\Admin\RelatorioController::class . '::index');
 });
