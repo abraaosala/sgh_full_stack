@@ -23,7 +23,7 @@
                     </a>
                 </li>
 
-                @if ($auth->perfil == 'superadmin')
+                <!-- @if ($auth->perfil == 'superadmin')
                 <li class="pc-item pc-caption">
                     <label>Configuração Mestra</label>
                     <i class="ti ti-shield-cog"></i>
@@ -48,7 +48,7 @@
                     </a>
                 </li>
 
-                @endif
+                @endif -->
 
 
                 {{-- --- SEÇÃO DE ADMINISTRAÇÃO (Admin e Super Admin) --- --}}
@@ -77,6 +77,20 @@
                 </li>
                 @endif
 
+                  {{-- Gerir Paciente --}}
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-users"></i></span>
+                        <span class="pc-mtext">Gerir Pacientes</span>
+                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                    </a>
+                    <ul class="pc-submenu">
+                        <li class="pc-item"><a href="{{ lnk('admin/pacientes') }}" class="pc-link">Todos
+                            </a></li>
+                        <li class="pc-item"><a href="{{ lnk('admin/paciente-criar') }}"
+                                class="pc-link">Cadastrar </a></li>
+                    </ul>
+                </li>
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
@@ -108,21 +122,7 @@
                         </li>
                     </ul>
                 </li>
-
-                <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-users"></i></span>
-                        <span class="pc-mtext">Gerir Pacientes</span>
-                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                    </a>
-                    <ul class="pc-submenu">
-                        <li class="pc-item"><a href="{{ lnk('admin/pacientes') }}" class="pc-link">Todos
-                            </a></li>
-                        <li class="pc-item"><a href="{{ lnk('admin/paciente-criar') }}"
-                                class="pc-link">Cadastrar </a></li>
-                    </ul>
-                </li>
-
+              
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-bed"></i></span>

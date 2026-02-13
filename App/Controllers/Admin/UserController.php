@@ -2,224 +2,132 @@
 
 namespace App\Controllers\Admin;
 
-use App\classes\FileManager;
 use App\classes\Password;
-use App\Dao\Entity\UserEntity;
-use App\Dao\Models\User;
+use App\Models\User;
 use App\Http\BaseController as Controller;
 use App\library\PostOld;
+use App\Services\MailService;
+use App\trait\View;
 
 class UserController extends Controller
 {
 
+    protected $userService;
 
-   // Métodos padrão de controllers RESTful
-   public function index()
-   {
+    public function __construct()
+    {
+        $this->userService = container(\App\Services\UserService::class);
+    }
 
+    public function index()
+    {
+        $search = $_GET['q'] ?? null;
+        $usuarios = $this->userService->getPaginatedList($search);
 
-      $tools = (new User())->select()
-         ->where('perfil', '!=', 'superadmin');
-      if (!empty($_GET['q'])) {
-         $tools->like(
-            'nome',
-            $_GET['q']
-         );
-      }
+        $usuarios->setPath(lnk('admin/usuarios'));
+        if ($search) {
+            $usuarios->appends(['q' => $search]);
+        }
 
-      //   dd($tools->paginate());
-      $tools = $tools->paginate();
-      // Listar com excepção do super Usuario
+        $this->view([
+            'title'       => 'Todos Usuários',
+            'usuarios'    => $usuarios->items(),
+            'tools'       => $usuarios,
+            'description' => 'Gerir Usuários',
+            'keywords'    => 'Gerir, Usuários, Listar'
+        ], 'admin.user.index');
+    }
 
-      $data = [
+    public function store()
+    {
+        $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
 
-         'title' => 'Todos Usuarios',
-         'usuarios' => $tools->Items,
-         'tools' => $tools,
+        try {
+            $result = $this->userService->storeUser($data);
 
-         'description' => 'Gerir Usuarios',
-         'keywords' => 'Girir, Usuarios, Listar'
+            \App\library\PostOld::clean();
 
-      ];
+            session()->set('temp_credentials', [
+                'nome' => $data['nome'],
+                'email' => $data['email'],
+                'senha' => $result['senha']
+            ]);
 
-      $this->view(globals($data), 'admin.users');
-      // dd($users);
-   }
+            $msg = sprintf(
+                'Usuário Cadastrado com Sucesso! <br> <strong>Senha Gerada: %s</strong> <br> ' .
+                '<a href="%s" class="btn btn-sm btn-info mt-2" target="_blank"><i class="feather icon-printer"></i> Imprimir Protocolo de Acesso (PDF)</a>',
+                $result['senha'],
+                lnk('admin/imprimir-credenciais')
+            );
 
-   public function show($params)
-   {
+            redirect(ROUTE_ADMIN_USERS, ['success', $msg, 'success']);
+        } catch (\App\Exceptions\ValidationException $e) {
+            \App\library\PostOld::set($data);
+            redirect(ROUTE_ADMIN_USERS_CREATE, ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect(ROUTE_ADMIN_USERS, ['error', 'Erro ao cadastrar: ' . $e->getMessage(), 'danger']);
+        }
+    }
 
-      // Exibir recurso específico
+    public function create()
+    {
+        $data = [
+            'title' => 'Todos Usuarios',
+            'description' => 'Gerir Usuarios',
+            'keywords' => 'Girir, Usuarios, Listar'
+        ];
+        $this->view($data, 'admin.user-criar');
+    }
 
-   }
+    public function edit($params)
+    {
+        $id = (int) ($params['usuario-editar'] ?? 0);
+        $user = \App\Models\User::find($id);
 
-   public function store()
-   {
-      $model = new User(UserEntity::class);
-      $model1 = new User(UserEntity::class);
-      $user = new User(UserEntity::class);
-      //armazenar no data e limpar 
-      $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
-      // dd($data);
+        if ($user && $user->perfil === 'superadmin') {
+            redirect(ROUTE_ADMIN_USERS, ['error', 'Superadministradores não podem ser alterados.', 'danger']);
+        }
 
-      $nome = $data['nome'];
-      $email = $data['email'];
-      $perfil =  $data['perfil'];
+        if (!$user) {
+            redirect(ROUTE_ADMIN_USERS, ['error', 'Usuário não encontrado.', 'danger']);
+        }
 
+        $data = [
+            'user' => $user,
+            'title' => 'Editar Usuário',
+            'description' => 'Gerir Usuarios',
+            'keywords' => 'Gerir, Usuarios, Editar'
+        ];
+        $this->view($data, 'admin.user-edit');
+    }
 
-      //verificar se esta vazio
-      if (empty($nome) || empty($email) || empty($perfil)) {
-         PostOld::set($data);
-         redirect(ROUTE_ADMIN_USERS_CREATE, ['error', 'Campos obrigatórios', 'danger']);
-      }
+    public function update($params)
+    {
+        $id = (int) ($params['usuario-save'] ?? 0);
+        $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
 
+        try {
+            $updated = $this->userService->updateUser($id, $data);
+            if (!$updated) {
+                redirect(ROUTE_ADMIN_USERS, ['error', 'Usuário não encontrado.', 'danger']);
+            }
+            redirect(ROUTE_ADMIN_USERS, ['success', 'Usuário atualizado com sucesso!', 'success']);
+        } catch (\App\Exceptions\ValidationException $e) {
+            \App\library\PostOld::set($data);
+            redirect(ROUTE_ADMIN_USERS, ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect(ROUTE_ADMIN_USERS, ['error', 'Falha ao atualizar usuário: ' . $e->getMessage(), 'danger']);
+        }
+    }
 
+    public function show($params) {}
 
-      //verificar email
-      $emailAny = $model->findbyEmail($email, "COUNT(*) as total")->total;
+    public function delete($params) {}
 
-      if ($emailAny == 1) {
-         PostOld::set($data);
-         redirect(ROUTE_ADMIN_USERS_CREATE, ['error', 'Email já existe', 'danger']);
-      }
-
-      $model1->findbyPerfil($perfil, "COUNT(*) as total")->total;
-
-      //Limitar O codastro de SuperAdmin
-      limiteCad($perfil, $model, ROUTE_ADMIN_USERS);
-      /* Verificar se já existe um superadmin - O sistema só permite 1 */
-      /*  if ($perfil == 'superadmin' && $PerfilAny == 1) {
-         PostOld::set($data);
-         redirect('admin/usuarios-criar', ['error', 'O sistema só permite 1 superadmin', 'danger']);
-      } */
-
-      /* Verificar se já existe um admin - O sistema só permite 2 */
-
-      /*   if ($perfil == 'admin' && $PerfilAny == 2) {
-         # code...
-         PostOld::set($data);
-         PostOld::clean();
-         redirect('admin/usuarios-criar', ['error', 'O sistema só permite 2 admin não pode cadastrar', 'danger']);
-      } */
-
-      $user->setEntity()->nome = $nome;
-      $user->setEntity()->email = $email;
-      $user->setEntity()->perfil = $perfil;
-      /* Gerar A Senha */
-      $password = Password::generate(3);
-
-      /* Armazenar Senha em um arquivo */
-      $file = new FileManager();
-      $file->add([
-         'email' => $email,
-         'senha' => $password
-      ]);
-      $user->setEntity()->senha = Password::hash($password);
-
-
-      // Salvar novo recurso
-      $store = $user->store();
-
-      if ($store) {
-         PostOld::clean();
-
-         redirect(
-            ROUTE_ADMIN_USERS,
-            ['success', 'Usuarios Cadastrado com Successo']
-         );
-      }
-   }
-
-   public function create()
-   {
-      // PostOld::clean();
-      $data = [
-
-         'title' => 'Todos Usuarios',
-         'description' => 'Gerir Usuarios',
-         'keywords' => 'Girir, Usuarios, Listar'
-
-      ];
-      $this->view(globals($data), 'admin.user-criar');
-   }
-
-   public function edit($params)
-   {
-
-
-      $id = $params['usuario-editar'];
-      $model = (new User())->findById($id);
-      (new User())->findById($id, "Count(*) as total");
-
-      //Proibir Usuario SuperAdmin ser alterado
-      if ($model->perfil === 'superadmin') {
-         redirect(
-            ROUTE_ADMIN_USERS,
-            ['error', 'Usuarios não pode ser alterado', 'danger']
-         );
-      }
-
-      // dd($any->total);
-      $data = [
-         'user' => $model,
-         'title' => 'Todos Usuarios',
-         'description' => 'Gerir Usuarios',
-         'keywords' => 'Girir, Usuarios, Listar',
-
-
-      ];
-      $this->view(globals($data), 'admin.user-edit');
-      // Editar recurso existente
-
-   }
-
-   public function update($params)
-   {
-
-      $id = $params['usuario-save'];
-      $data = filter_input_array(INPUT_POST, FILTER_DEFAULT);
-      $model = new User(UserEntity::class);
-      $model->setEntity()->id = $id;
-
-      entity_data_itera($data, $model);
-
-      limiteCad($data['perfil'], $model, ROUTE_ADMIN_USERS);
-
-      // Atualizar recurso existente
-      if ($model->save()) {
-         redirect(
-            ROUTE_ADMIN_USERS,
-            ['success', 'Usuarios não pode ser alterado']
-         );
-      } else {
-         redirect(
-            ROUTE_ADMIN_USERS,
-            ['error', 'Usuarios não pode ser alterado', 'danger']
-         );
-      }
-   }
-
-   public function delete($params)
-   {
-
-      // Deletar recurso
-   }
-
-   public function list()
-   {
-      $tools = (new User())->select("id, nome,genero,email, perfil, criado_em")
-         ->where('perfil', '!=', 'superadmin');
-      $q = $_GET['q'];
-      if (!empty($q)) {
-         $tools->like(function ($query) use ($q) {
-            $query->like([['nome', $q], ['email', $q]], 'or')
-
-            ;
-            // Lógica interna é AND
-         });
-      }
-
-      $tools = $tools->get();
-      echo json_encode(convertData($tools),  true);
-   }
+    public function list()
+    {
+        $search = $_GET['q'] ?? null;
+        $usuarios = $this->userService->getPaginatedList($search, 100); // Higher limit for search? Or just all?
+        echo json_encode(convertData($usuarios->items()), true);
+    }
 }

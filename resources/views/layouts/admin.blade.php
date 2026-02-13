@@ -57,8 +57,8 @@
 
     <!-- [Scripts] -->
     @if (isset($dashboard) && $dashboard)
-        <script src="{{ asset('js/plugins/apexcharts.min.js', true) }}"></script>
-        <script src="{{ asset('js/pages/dashboard-default.js', true) }}"></script>
+    <script src="{{ asset('js/plugins/apexcharts.min.js', true) }}"></script>
+    <script src="{{ asset('js/pages/dashboard-default.js', true) }}"></script>
     @endif
     <script src="{{ asset('js/plugins/popper.min.js', true) }}"></script>
     <script src="{{ asset('js/plugins/simplebar.min.js', true) }}"></script>
@@ -85,6 +85,8 @@
     <script>
         font_change("Public-Sans");
     </script>
+
+    @stack('scripts')
 
 </body>
 

@@ -14,6 +14,7 @@ class User extends Model
         'nome',
         'email',
         'senha', // Changed from senha_hash to senha
+        'data_nascimento',
         'perfil',
         'criado_em',
         'genero'
@@ -33,5 +34,10 @@ class User extends Model
     public function paciente()
     {
         return $this->hasOne(Paciente::class, 'usuario_id');
+    }
+
+    public function funcionario()
+    {
+        return $this->hasOne(Funcionario::class, 'usuario_id');
     }
 }

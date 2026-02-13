@@ -33,7 +33,20 @@ class ConsultaController extends Controller
       ]));
    }
 
-   public function show($params) {}
+   public function show($params)
+   {
+      $id = (int) ($params['consulta'] ?? 0);
+      $consulta = \App\Models\Consulta::with(['paciente.usuario', 'medico.usuario', 'medico.especialidade', 'agenda'])->find($id);
+
+      if (!$consulta) {
+         redirect('admin/consultas', ['error', 'Consulta não encontrada', 'danger']);
+      }
+
+      \App\library\View::render('admin.consultas.show', globals([
+         'title' => "Detalhes da Consulta #" . $id,
+         'consulta' => $consulta
+      ]));
+   }
 
    public function api($params)
    {

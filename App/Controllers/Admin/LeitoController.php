@@ -8,18 +8,24 @@ use App\library\View;
 
 class LeitoController extends Controller
 {
+    protected $leitoService;
+
+    public function __construct()
+    {
+        $this->leitoService = container(\App\Services\LeitoService::class);
+    }
+
     /**
      * Listar leitos
      */
     public function index()
     {
-        // Eloquent: buscar todos os leitos paginados (opcional, aqui trazendo todos)
-        $leitos = Leito::orderBy('id', 'desc')->get();
+        $leitos = $this->leitoService->getAllLeitos();
 
-        View::render('admin.leitos.index', globals([
+        \App\library\View::render('admin.leitos.index', [
             'title' => 'Gestão de Leitos',
             'leitos' => $leitos
-        ]));
+        ]);
     }
 
     /**
@@ -27,10 +33,10 @@ class LeitoController extends Controller
      */
     public function create()
     {
-        View::render('admin.leitos.create', globals([
+        \App\library\View::render('admin.leitos.create', [
             'title' => 'Novo Leito',
-            'leito' => null // null indica modo criação
-        ]));
+            'leito' => null 
+        ]);
     }
 
     /**
@@ -38,25 +44,17 @@ class LeitoController extends Controller
      */
     public function store()
     {
-        $data = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
+        $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
 
-        // Simple Validation (pode melhorar depois)
-        if (empty($data['numero']) || empty($data['tipo'])) {
-            // Em um cenário real, usar flash messages e redirect back
-            redirect('/admin/leito-criar');
-            return;
+        try {
+            $this->leitoService->storeLeito($data);
+            redirect('admin/leitos', ['success', 'Leito cadastrado com sucesso!']);
+        } catch (\App\Exceptions\ValidationException $e) {
+            \App\library\PostOld::set($data);
+            redirect('admin/leito-criar', ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect('admin/leitos', ['error', 'Erro ao cadastrar: ' . $e->getMessage(), 'danger']);
         }
-
-        // Eloquent: Mass Assignment
-        // Certifique-se que os campos estão no $fillable do Model
-        Leito::create([
-            'numero' => $data['numero'],
-            'tipo' => $data['tipo'],
-            'status' => $data['status'] ?? 'Disponível',
-            'descricao' => $data['descricao']
-        ]);
-
-        redirect('admin/leitos');
     }
 
     /**
@@ -64,17 +62,17 @@ class LeitoController extends Controller
      */
     public function edit($params)
     {
-        $id = (int) $params['leito-editar'] ?? null;
+        $id = (int) ($params['leito-editar'] ?? 0);
         
-        if (!$id) redirect('admin/leitos');
+        if ($id === 0) redirect('admin/leitos');
 
-        $leito = Leito::find($id);
+        $leito = $this->leitoService->getLeitoById($id);
         if (!$leito) redirect('admin/leitos');
 
-        View::render('admin.leitos.create', globals([
+        \App\library\View::render('admin.leitos.create', [
             'title' => 'Editar Leito',
-            'leito' => $leito // objeto preenchido indica edição
-        ]));
+            'leito' => $leito
+        ]);
     }
 
     /**
@@ -82,22 +80,23 @@ class LeitoController extends Controller
      */
     public function update($params)
     {
-        $id = $params[0] ?? null;
-        if (!$id) redirect('admin/leitos');
+        $id = (int) ($params['leito-save'] ?? 0);
+        if ($id === 0) redirect('admin/leitos');
 
-        $leito = Leito::find($id);
-        if (!$leito) redirect('admin/leitos');
+        $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
 
-        $data = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
-
-        $leito->update([
-            'numero' => $data['numero'],
-            'tipo' => $data['tipo'],
-            'status' => $data['status'],
-            'descricao' => $data['descricao']
-        ]);
-
-        redirect('admin/leitos');
+        try {
+            $updated = $this->leitoService->updateLeito($id, $data);
+            if (!$updated) {
+                redirect('admin/leitos', ['error', 'Leito não encontrado', 'danger']);
+            }
+            redirect('admin/leitos', ['success', 'Leito atualizado com sucesso!']);
+        } catch (\App\Exceptions\ValidationException $e) {
+            \App\library\PostOld::set($data);
+            redirect('admin/leito-editar/' . $id, ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect('admin/leitos', ['error', 'Falha ao atualizar: ' . $e->getMessage(), 'danger']);
+        }
     }
 
     /**
@@ -105,13 +104,12 @@ class LeitoController extends Controller
      */
     public function destroy($params)
     {
-        $id = (int) $params['leito-excluir'] ?? null;
+        $id = (int) ($params['leito-excluir'] ?? 0);
 
-        if ($id) {
-            $leito = Leito::find($id);
-            if ($leito) $leito->delete();
+        if ($id !== 0) {
+            $this->leitoService->deleteLeito($id);
         }
-        redirect('admin/leitos');
+        redirect('admin/leitos', ['success', 'Leito excluído com sucesso!']);
     }
 
     public function show($params) {}

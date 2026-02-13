@@ -10,24 +10,26 @@ use App\Models\Especialidade;
 use App\Models\User;
 use App\Models\Leito;
 use Illuminate\Database\Capsule\Manager as DB;
+use App\trait\DocumentExport;
+
+use App\Services\RelatorioService;
 
 class RelatorioController extends BaseController
 {
+    use DocumentExport;
+
+    protected RelatorioService $relatorioService;
+
+    public function __construct()
+    {           
+        $this->relatorioService = container(RelatorioService::class);
+    }
+
     public function index()
     {
         try {
             $year = $_GET['year'] ?? date('Y');
-            $month = $_GET['month'] ?? null;
-
-            // Simplified statistics
-            $stats = [
-                'total_pacientes' => Paciente::count(),
-                'total_medicos'   => Medico::count(),
-                'total_consultas' => Consulta::whereYear('marcacao', $year)->count(),
-                'consultas_hoje'  => Consulta::whereDate('marcacao', date('Y-m-d'))->count(),
-                'leitos_total'    => Leito::count(),
-                'leitos_ocupados' => Leito::where('status', '!=', 'Disponível')->count(),
-            ];
+            $month = isset($_GET['month']) && $_GET['month'] !== '' ? $_GET['month'] : null;
 
             $data = [
                 'title' => 'Relatórios Gerenciais',
@@ -36,108 +38,24 @@ class RelatorioController extends BaseController
                     'month' => $month,
                     'years' => range(date('Y'), date('Y') - 5),
                     'months' => [
-                        1 => 'Janeiro',
-                        2 => 'Fevereiro',
-                        3 => 'Março',
-                        4 => 'Abril',
-                        5 => 'Maio',
-                        6 => 'Junho',
-                        7 => 'Julho',
-                        8 => 'Agosto',
-                        9 => 'Setembro',
-                        10 => 'Outubro',
-                        11 => 'Novembro',
-                        12 => 'Dezembro'
+                        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril', 
+                        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto', 
+                        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
                     ]
                 ],
-                'stats' => $stats,
-                'consultas_por_status' => $this->getConsultasPorStatus($year, $month),
-                'pacientes_por_mes' => $this->getPacientesPorMes($year),
-                'consultas_por_especialidade' => $this->getConsultasPorEspecialidade($year, $month),
-                'top_medicos' => $this->getTopMedicos($year, $month),
-                'genero_distribuicao' => $this->getGeneroDistribuicao(),
-                'recent_consultas' => Consulta::with(['paciente.usuario', 'medico.usuario'])
-                    ->orderBy('id', 'desc')
-                    ->limit(5)
-                    ->get(),
+                'stats' => $this->relatorioService->getDashboardStats($year, $month),
+                'consultas_por_status' => $this->relatorioService->getConsultasPorStatus($year, $month),
+                'pacientes_por_mes' => $this->relatorioService->getPacientesPorMes($year),
+                'consultas_por_especialidade' => $this->relatorioService->getConsultasPorEspecialidade($year, $month),
+                'top_medicos' => $this->relatorioService->getTopMedicos($year, $month),
+                'genero_distribuicao' => $this->relatorioService->getGeneroDistribuicao(),
+                'recent_consultas' => $this->relatorioService->getRecentConsultas(5),
             ];
 
             return $this->view(globals($data), 'admin.relatorios.index');
         } catch (\Exception $e) {
-            dd("Erro no Relatório: " . $e->getMessage() . " em " . $e->getFile() . ":" . $e->getLine());
+            dd("Erro no Relatório: " . $e->getMessage());
         }
-    }
-
-    private function getConsultasPorStatus($year, $month)
-    {
-        $query = Consulta::select('status', DB::raw('count(*) as total'))
-            ->whereYear('marcacao', $year);
-
-        if ($month) {
-            $query->whereMonth('marcacao', $month);
-        }
-
-        return $query->groupBy('status')->get();
-    }
-
-    private function getPacientesPorMes($year)
-    {
-        // SQL-Agnostic simple month aggregation
-        $results = DB::table('usuarios')
-            ->where('perfil', 'paciente')
-            ->whereYear('criado_em', $year)
-            ->select(DB::raw('substr(criado_em, 6, 2) as mes'), DB::raw('count(*) as total'))
-            ->groupBy('mes')
-            ->get();
-
-        return $results->map(function ($item) {
-            $item->mes = (int) $item->mes;
-            return $item;
-        });
-    }
-
-    private function getConsultasPorEspecialidade($year, $month)
-    {
-        $query = DB::table('consultas')
-            ->join('medicos', 'consultas.medico_id', '=', 'medicos.id')
-            ->join('especialidades', 'medicos.especialidade_id', '=', 'especialidades.id')
-            ->select('especialidades.nome', DB::raw('count(*) as total'))
-            ->whereYear('consultas.marcacao', $year);
-
-        if ($month) {
-            $query->whereMonth('consultas.marcacao', $month);
-        }
-
-        return $query->groupBy('especialidades.nome')
-            ->orderBy('total', 'desc')
-            ->limit(5)
-            ->get();
-    }
-
-    private function getTopMedicos($year, $month)
-    {
-        $query = DB::table('consultas')
-            ->join('medicos', 'consultas.medico_id', '=', 'medicos.id')
-            ->join('usuarios', 'medicos.usuario_id', '=', 'usuarios.id')
-            ->select('usuarios.nome', DB::raw('count(*) as total'))
-            ->whereYear('consultas.marcacao', $year);
-
-        if ($month) {
-            $query->whereMonth('consultas.marcacao', $month);
-        }
-
-        return $query->groupBy('usuarios.nome')
-            ->orderBy('total', 'desc')
-            ->limit(5)
-            ->get();
-    }
-
-    private function getGeneroDistribuicao()
-    {
-        return User::select('genero', DB::raw('count(*) as total'))
-            ->whereIn('perfil', ['paciente', 'medico', 'admin'])
-            ->groupBy('genero')
-            ->get();
     }
 
     // Required by BaseController
@@ -147,4 +65,41 @@ class RelatorioController extends BaseController
     public function edit($params) {}
     public function update($params) {}
     public function delete($params) {}
+
+    public function exporte()
+    {
+        $type = sanitizeInput($_GET['type'] ?? 'pdf');
+        $year = $_GET['year'] ?? date('Y');
+        $month = isset($_GET['month']) && $_GET['month'] !== '' ? $_GET['month'] : null;
+
+        $stats = $this->relatorioService->getDashboardStats($year, $month);
+
+        $data = [
+            'view' => 'document.relatorios',
+            'data' => [
+                'title' => 'Relatórios Gerenciais',
+                'stats' => $stats,
+                'filters' => ['year' => $year, 'month' => $month],
+                'consultas_por_status' => $this->relatorioService->getConsultasPorStatus($year, $month),
+                'pacientes_por_mes' => $this->relatorioService->getPacientesPorMes($year),
+                'consultas_por_especialidade' => $this->relatorioService->getConsultasPorEspecialidade($year, $month),
+                'top_medicos' => $this->relatorioService->getTopMedicos($year, $month),
+                'genero_distribuicao' => $this->relatorioService->getGeneroDistribuicao(),
+                'hospital' => HOSPITAL,
+                'date' => date('d/m/Y H:i')
+            ],
+            'nome_arquivo' => "relatorio_gerencial_" . date('YmdHis'),
+            'download' => false,
+            'model' => [
+                ['Indicador', 'Valor'],
+                ['Total Pacientes', $stats['total_pacientes']],
+                ['Total Médicos', $stats['total_medicos']],
+                ['Consultas no Período', $stats['total_consultas']],
+                ['Consultas Hoje', $stats['consultas_hoje']],
+                ['Leitos Ocupados', $stats['leitos_ocupados'] . '/' . $stats['leitos_total']]
+            ]
+        ];
+
+        $this->export($data, $type);
+    }
 }

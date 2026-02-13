@@ -10,36 +10,39 @@ use App\Models\Doenca;
 
 class DiagnosticoController extends BaseController
 {
+    protected $diagnosticoService;
+
+    public function __construct()
+    {
+        $this->diagnosticoService = container(\App\Services\DiagnosticoService::class);
+    }
+
     public function index()
     {
-        $diagnosticos = Diagnostico::with(['paciente.usuario', 'medico.usuario', 'doenca'])->get();
+        $diagnosticos = $this->diagnosticoService->getAllDiagnosticos();
 
-        return $this->view(globals([
+        return $this->view([
             'title' => 'Gestão de Diagnósticos',
             'diagnosticos' => $diagnosticos
-        ]), 'admin.diagnosticos.index');
+        ], 'admin.diagnosticos.index');
     }
 
     public function show($params)
     {
-        $id = $params['id'];
-        $diagnostico = Diagnostico::with(['paciente.usuario', 'medico.usuario', 'doenca'])->find($id);
+        $id = (int) $params['id'];
+        $diagnostico = $this->diagnosticoService->getDiagnosticoById($id);
 
         if (!$diagnostico) {
             return redirect(lnk('admin/diagnosticos'));
         }
 
-        return $this->view(globals([
+        return $this->view([
             'title' => 'Detalhes do Diagnóstico',
             'diagnostico' => $diagnostico
-        ]), 'admin.diagnosticos.show');
+        ], 'admin.diagnosticos.show');
     }
 
-    public function create()
-    {
-        // Administradores geralmente não criam diagnósticos diretamente, 
-        // mas podemos implementar se necessário.
-    }
+    public function create() {}
 
     public function store() {}
 
@@ -49,13 +52,9 @@ class DiagnosticoController extends BaseController
 
     public function delete($params)
     {
-        $id = $params['id'];
-        $diagnostico = Diagnostico::find($id);
+        $id = (int) $params['id'];
+        $this->diagnosticoService->deleteDiagnostico($id);
 
-        if ($diagnostico) {
-            $diagnostico->delete();
-        }
-
-        return redirect(lnk('admin/diagnosticos'));
+        return redirect(lnk('admin/diagnosticos'), ['success', 'Diagnóstico excluído com sucesso!']);
     }
 }

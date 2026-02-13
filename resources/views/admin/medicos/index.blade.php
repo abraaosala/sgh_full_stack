@@ -48,6 +48,34 @@
     </a>
 </div>
 
+<!-- Filtro e Pesquisa -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form action="{{ lnk('admin/medicos') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-9">
+                <label class="form-label small fw-bold text-uppercase">Pesquisar Médico</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="feather icon-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control form-control-sm border-start-0 shadow-none focus-ring" 
+                           placeholder="Nome ou Nº de Ordem..." value="{{ $_GET['search'] ?? '' }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="feather icon-filter me-1"></i> Filtrar
+                    </button>
+                    @if(isset($_GET['search']) && $_GET['search'] !== '')
+                        <a href="{{ lnk('admin/medicos') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="feather icon-x"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Tabela -->
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
@@ -168,7 +196,11 @@
 <script>
     async function eye(id) {
         try {
-            const response = await fetch(`{{ root() }}admin/medico/${id}`);
+            const response = await fetch(`{{ lnk('admin/medico/') }}${id}?json=1`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
             const result = await response.json();
 
             const modal = new bootstrap.Modal(document.getElementById('visualizarModal'));

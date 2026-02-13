@@ -17,9 +17,36 @@
                 <p class="text-muted">Análise detalhada de desempenho e ocupação hospitalar.</p>
             </div>
             <div class="col-md-4 text-md-end">
-                <button class="btn btn-outline-primary btn-sm me-2" onclick="window.print()">
-                    <i class="feather icon-printer me-1"></i> Imprimir Relatório
-                </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="feather icon-download me-1"></i> Exportar
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ lnk('admin/relatorios-export?type=pdf&year=' . $filters['year'] . '&month=' . $filters['month']) }}">
+                                <i class="feather icon-file-text me-2"></i> PDF (Servidor)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ lnk('admin/relatorios-export?type=excel&year=' . $filters['year'] . '&month=' . $filters['month']) }}">
+                                <i class="feather icon-file me-2"></i> Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ lnk('admin/relatorios-export?type=csv&year=' . $filters['year'] . '&month=' . $filters['month']) }}">
+                                <i class="feather icon-file-minus me-2"></i> CSV
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="window.print()">
+                                <i class="feather icon-printer me-2"></i> Imprimir (Navegador)
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -238,12 +265,8 @@
     Chart.defaults.color = "#6c757d";
 
     // Especialidade Chart
-    const espLabels = {
-        !!json_encode(array_column(isset($consultas_por_especialidade) ? $consultas_por_especialidade - > toArray() : [], 'nome')) !!
-    };
-    const espData = {
-        !!json_encode(array_column(isset($consultas_por_especialidade) ? $consultas_por_especialidade - > toArray() : [], 'total')) !!
-    };
+    const espLabels = {!! json_encode(array_column(isset($consultas_por_especialidade) ? $consultas_por_especialidade->toArray() : [], 'nome')) !!};
+    const espData = {!! json_encode(array_column(isset($consultas_por_especialidade) ? $consultas_por_especialidade->toArray() : [], 'total')) !!};
 
     if (espLabels.length && document.getElementById('especialidadeChart')) {
         new Chart(document.getElementById('especialidadeChart'), {
@@ -288,9 +311,7 @@
     }
 
     // Genero Chart
-    const genData = {
-        !!json_encode(isset($genero_distribuicao) ? $genero_distribuicao - > toArray() : []) !!
-    };
+    const genData = {!! json_encode(isset($genero_distribuicao) ? $genero_distribuicao->toArray() : []) !!};
     if (genData.length && document.getElementById('generoChart')) {
         new Chart(document.getElementById('generoChart'), {
             type: 'doughnut',
@@ -319,19 +340,11 @@
     const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const dataPacientes = new Array(12).fill(0);
     @if(isset($pacientes_por_mes) && count($pacientes_por_mes) > 0)
-    @foreach($pacientes_por_mes as $item)
-    @if(isset($item -> mes) && (int) $item ->mes >= 1 && (int) $item -> mes <= 12)
-    dataPacientes[{
-        {
-            (int) $item->mes - 1
-        }
-    }] = {
-        {
-            (int) $item-> total ?? 0
-        }
-    };
-    @endif
-    @endforeach
+        @foreach($pacientes_por_mes as $item)
+            @if(isset($item->mes) && (int) $item->mes >= 1 && (int) $item->mes <= 12)
+                dataPacientes[{{ (int) $item->mes - 1 }}] = {{ (int) $item->total ?? 0 }};
+            @endif
+        @endforeach
     @endif
 
     if (document.getElementById('pacientesChart')) {
@@ -380,9 +393,7 @@
     }
 
     // Status Chart
-    const statusData = {
-        !!json_encode(isset($consultas_por_status) ? $consultas_por_status - > toArray() : []) !!
-    };
+    const statusData = {!! json_encode(isset($consultas_por_status) ? $consultas_por_status->toArray() : []) !!};
     if (statusData.length && document.getElementById('statusChart')) {
         new Chart(document.getElementById('statusChart'), {
             type: 'pie',
@@ -400,10 +411,7 @@
                 plugins: {
                     legend: {
                         position: 'right',
-                        labels: {
-                            boxWidth: 10,
-                            padding: 10
-                        }
+                        labels: { boxWidth: 10, padding: 10 }
                     }
                 }
             }
@@ -430,7 +438,6 @@
     }
 
     @media print {
-
         .pc-sidebar,
         .card.mb-4,
         .btn-sm {

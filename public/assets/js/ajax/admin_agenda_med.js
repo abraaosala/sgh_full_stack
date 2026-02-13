@@ -1,6 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
-    var url_api = 'http://sgh.test/api/agenda/medico';
+    var base_api = window.APP_URL || '/';
+    var url_api = base_api + 'api/agenda/medico';
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         headerToolbar: {
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectable: true,
         themeSystem: 'bootstrap5',
         selectMirror: true,
-        select: function(arg) {
+        select: function (arg) {
             const modal = new bootstrap.Modal(document.getElementById('cadastrarModal'));
 
             // Preenche os inputs com as datas selecionadas
@@ -28,25 +29,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             modal.show();
 
-
-            // Função para adicionar um evento ao clicar e arrastar
-            // var title = prompt('Event Title:');
-            // if (title) {
-            //     calendar.addEvent({
-            //         title: title,
-            //         start: arg.start,
-            //         end: arg.end,
-            //         allDay: arg.allDay
-            //     });
-            // }
             calendar.unselect()
         },
-        eventClick: function(arg) {
+        eventClick: function (arg) {
             const props = arg.event.extendedProps;
             const event = arg.event;
-            /* if (confirm('Are you sure you want to delete this event?')) {
-              arg.event.remove()
-            } */
             const model = new bootstrap.Modal(document.getElementById('visualizarModal'));
             // Exibir informações do médico
             document.getElementById('title-ver').innerText = event.title;
@@ -85,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calendar.render();
 
 
-    document.getElementById('editar-btn').addEventListener('click', function() {
+    document.getElementById('editar-btn').addEventListener('click', function () {
         // alert('Editar evento');
         // Alternar entre visualizar e editar
         document.getElementById('medico-info').style.display = 'none';
@@ -95,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    document.getElementById('first-btn').addEventListener('click', function() {
+    document.getElementById('first-btn').addEventListener('click', function () {
         document.getElementById('medico-info').style.display = 'block';
         document.getElementById('visualizarModalLabel').style.display = 'block';
         document.getElementById('editarModalLabel').style.display = 'none';
@@ -107,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     if (btnCadastrar) {
-        btnCadastrar.addEventListener('submit', async function(event) {
+        btnCadastrar.addEventListener('submit', async function (event) {
             event.preventDefault();
 
 
@@ -117,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // console.log(data);
 
 
-            const response = await fetch('/api/agenda/medico/store', {
+            const response = await fetch(base_api + 'api/agenda/medico/store', {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -128,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const res = await response.json();
 
-           
+
 
             if (!res.status) {
 
@@ -172,13 +159,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnAtualizar = document.getElementById('medico-edit-form');
 
     if (btnAtualizar) {
-        btnAtualizar.addEventListener('submit', async function(event) {
+        btnAtualizar.addEventListener('submit', async function (event) {
             event.preventDefault();
             // console.log('Submetido')
             const dataForm = new FormData(btnAtualizar);
             const data = Object.fromEntries(dataForm);
 
-            const response = await fetch('/api/agenda/medico/save', {
+            const response = await fetch(base_api + 'api/agenda/medico/save', {
                 method: 'put',
                 headers: {
                     "Content-Type": "application/json",
@@ -224,13 +211,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnEleminar = document.getElementById('form-eliminar');
 
     if (btnEleminar) {
-        btnEleminar.addEventListener('submit', async function(e) {
+        btnEleminar.addEventListener('submit', async function (e) {
 
             e.preventDefault();
             const formData = new FormData(btnEleminar);
             const data = Object.fromEntries(formData);
 
-            const response = await fetch('/api/agenda/medico/deletar', {
+            const response = await fetch(base_api + 'api/agenda/medico/deletar', {
                 method: 'delete',
                 headers: {
                     "Content-Type": "application/json",
@@ -269,8 +256,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     if (btnGenerate) {
-        btnGenerate.addEventListener('click', function() {
-            
+        btnGenerate.addEventListener('click', async function () {
+            const confirm = await Swal.fire({
+                title: 'Gerar Escala?',
+                text: "Iso criará turnos aleatórios para os médicos no próximo mês.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, gerar!',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                Swal.fire({
+                    title: 'Gerando...',
+                    didOpen: () => {
+                        Swal.showLoading()
+                    },
+                    allowOutsideClick: false
+                });
+
+                try {
+                    const response = await fetch(base_api + 'api/agenda/medico/gerar-aleatorio', {
+                        method: 'POST'
+                    });
+                    const res = await response.json();
+
+                    if (res.status !== false) {
+                        Swal.fire('Sucesso!', res.msg, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Erro', res.msg || 'Falha ao gerar escala', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Erro', 'Ocorreu um erro na requisição', 'error');
+                }
+            }
         });
     }
 

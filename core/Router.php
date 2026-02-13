@@ -11,7 +11,7 @@ class Router extends Controller
 {
     // Armazena todas as rotas registradas
     private ?array $routes = [];
-    
+
     // Armazena a URI da requisição atual
     private readonly string $uri;
 
@@ -38,10 +38,10 @@ class Router extends Controller
             if ($withSlash) {
                 $collection['/' . $path] = [$action, $method];
             }
-            
+
             $collection[$path] = [$action, $method];
         }
-        
+
         return $collection;
     }
 
@@ -49,7 +49,7 @@ class Router extends Controller
     {
         return $this->uri;
     }
-    
+
 
     /**
      * Tenta encontrar uma rota que corresponda exatamente à URI fornecida.
@@ -63,7 +63,7 @@ class Router extends Controller
         if (array_key_exists($uri, $routes)) {
             return [$uri => $routes[$uri]];
         }
-        
+
         return [];
     }
 
@@ -97,7 +97,7 @@ class Router extends Controller
                 explode('/', (string) $matchedToGetParams)
             );
         }
-        
+
         return [];
     }
 
@@ -145,6 +145,7 @@ class Router extends Controller
 
         // Verifica se o método HTTP corresponde
         if ($_SERVER['REQUEST_METHOD'] !== $method) {
+            $isMethodWrong = true;
             $matchedData = [];
         }
 
@@ -158,10 +159,14 @@ class Router extends Controller
             return;
         }
 
-        // Rota não encontrada
-        throw new \Exception(sprintf("Algo deu errado: Rota '%s' não encontrada ou método '%s' incorreto.", $this->uri, $method));
+        // Rota não encontrada ou Método Incorreto
+        if (isset($isMethodWrong) && $isMethodWrong) {
+            throw new \Exception(sprintf("Método '%s' não é permitido para a rota '%s'.", $_SERVER['REQUEST_METHOD'], $uri), 405);
+        }
+
+        throw new \Exception(sprintf("A rota '%s' não foi encontrada no sistema.", $this->uri), 404);
     }
-    
+
     /**
      * Retorna os dados completos da rota correspondente a path + method.
      */
@@ -172,11 +177,11 @@ class Router extends Controller
                 return $route;
             }
         }
-        
+
         return null;
     }
 
- 
+
     /**
      * Executa os middlewares fornecidos, com suporte para condições 'OU' em arrays aninhados.
      */
@@ -204,7 +209,7 @@ class Router extends Controller
 
                 // Se nenhum dos middlewares na condição 'OU' passou, então falha geral.
                 if (!$oneOfThesePassed) {
-                    throw new \Exception("Acesso negado. Nenhuma das permissões necessárias foi atendida.");
+                    throw new \Exception("Acesso negado. Nenhuma das permissões necessárias foi atendida.", 403);
                 }
             }
             // Se não for um array, trata como uma condição 'E' (padrão)

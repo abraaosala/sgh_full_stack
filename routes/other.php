@@ -18,8 +18,11 @@ use App\Middleware\MedicoMiddleware;
 use App\Middleware\VerifyPasswordGenerateMiddleware as Verify;
 
 Route::group(['prefix' => '/medico', 'middleware' =>
-[/* AuthMiddleware::class, Verify::class, 
-   MedicoMiddleware::class */]], function () {
+[
+   AuthMiddleware::class,
+   Verify::class,
+   MedicoMiddleware::class
+]], function () {
 
 
    Route::get('/home', [App\controllers\Medical\UserController::class, 'dashboard']);
@@ -50,7 +53,7 @@ Route::group(['prefix' => '/medico', 'middleware' =>
  * Prefixo base /Paciente
 */
 Route::group(['prefix' => '/paciente', 'middleware' =>
-[]], function () {
+[AuthMiddleware::class, Verify::class]], function () {
    Route::get("/home", [PatientUserController::class, 'index']);
    Route::get('/consultas', "\App\Controllers\Patient\ConsultaController::index");
    Route::get('/consulta/criar', "App\Controllers\Patient\ConsultaController::create");
@@ -79,7 +82,7 @@ Route::group(['prefix' => '/paciente', 'middleware' =>
 */
 
 Route::group(['prefix' => '/recepcao', 'middleware' =>
-[]], function () {
+[AuthMiddleware::class, Verify::class]], function () {
    Route::get("/home", \App\Controllers\Reception\RecepcaoController::class . '::index');
 
 
@@ -93,7 +96,7 @@ Route::group(['prefix' => '/recepcao', 'middleware' =>
 });
 
 Route::group(['prefix' => '/enfermeiro', 'middleware' =>
-[]], function () {
+[AuthMiddleware::class, Verify::class]], function () {
    Route::get("/home", [EnfermeiroUserController::class, 'index']);
    Route::get("/", [EnfermeiroUserController::class, 'index']);
    Route::get("/leitos", [App\Controllers\Enfermeiro\LeitoController::class, 'index']);

@@ -20,6 +20,7 @@ use App\Models\Consulta;
 
 Route::group(['prefix' => '/admin', 'middleware' => [
     AuthMiddleware::class,
+    \App\Middleware\VerifyPasswordGenerateMiddleware::class,
     AdminOnlyMiddleware::class
 ]], function () {
 
@@ -36,32 +37,35 @@ Route::group(['prefix' => '/admin', 'middleware' => [
     //Api de Usuarios
     Route::get('/api/usuarios', "UserController::list");
 
+    // Protocolo de Credenciais (PDF)
+    Route::get('/imprimir-credenciais', \App\Controllers\Admin\CredentialController::class . '::print');
+
 
 
     // Medicos(Admin)
-    Route::get('/medicos', \App\Controllers\Medical\MedicoController::class . '::index');
+    Route::get('/medicos', \App\Controllers\Admin\MedicoController::class . '::index');
 
-    Route::get('/medico-criar', \App\Controllers\Medical\MedicoController::class . '::create');
-    Route::get('/medico/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::show');
-    Route::post('/medico-store', \App\Controllers\Medical\MedicoController::class . '::store');
-    Route::get('/medico-editar/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::edit');
-    Route::post('/medico-update/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::update');
-    Route::get('/medico-excluir/[0-9]+', \App\Controllers\Medical\MedicoController::class . '::destroy');
-    Route::get('/medico-export', \App\Controllers\Medical\MedicoController::class . '::exporte');
+    Route::get('/medico-criar', \App\Controllers\Admin\MedicoController::class . '::create');
+    Route::get('/medico/[0-9]+', \App\Controllers\Admin\MedicoController::class . '::show');
+    Route::post('/medico-store', \App\Controllers\Admin\MedicoController::class . '::store');
+    Route::get('/medico-editar/[0-9]+', \App\Controllers\Admin\MedicoController::class . '::edit');
+    Route::post('/medico-update/[0-9]+', \App\Controllers\Admin\MedicoController::class . '::update');
+    Route::get('/medico-excluir/[0-9]+', \App\Controllers\Admin\MedicoController::class . '::destroy');
+    Route::get('/medico-export', \App\Controllers\Admin\MedicoController::class . '::exporte');
 
     Route::post('agenda-med-gerar', function () {});
 
 
-    Route::get('/pacientes', \App\Controllers\Patient\PacienteController::class . '::index');
+    Route::get('/pacientes', \App\Controllers\Admin\PacienteController::class . '::index');
     Route::get('/agenda', "Reception\\AgendaController::index");
 
     // Pacientes (Admin)
-    Route::get('/paciente-criar', \App\Controllers\Patient\PacienteController::class . '::create');
-    Route::get('/paciente-editar/[0-9]+', \App\Controllers\Patient\PacienteController::class . '::edit');
-    Route::get('/paciente/[0-9]+', \App\Controllers\Patient\PacienteController::class . '::show');
-    Route::post('/paciente-update/[0-9]+', \App\Controllers\Patient\PacienteController::class . '::update');
-    Route::get('/paciente-excluir/[0-9]+', \App\Controllers\Patient\PacienteController::class . '::destroy');
-    Route::post('/paciente-store', \App\Controllers\Patient\PacienteController::class . '::store');
+    Route::get('/paciente-criar', \App\Controllers\Admin\PacienteController::class . '::create');
+    Route::get('/paciente-editar/[0-9]+', \App\Controllers\Admin\PacienteController::class . '::edit');
+    Route::get('/paciente/[0-9]+', \App\Controllers\Admin\PacienteController::class . '::show');
+    Route::post('/paciente-update/[0-9]+', \App\Controllers\Admin\PacienteController::class . '::update');
+    Route::get('/paciente-excluir/[0-9]+', \App\Controllers\Admin\PacienteController::class . '::destroy');
+    Route::post('/paciente-store', \App\Controllers\Admin\PacienteController::class . '::store');
     Route::post('/paciente-save', \App\Controllers\Patient\PacienteController::class . '::update');
     Route::get('/paciente-export', \App\Controllers\Patient\PacienteController::class . '::exporte');
 
@@ -92,4 +96,5 @@ Route::group(['prefix' => '/admin', 'middleware' => [
 
     // Relatórios
     Route::get('/relatorios', \App\Controllers\Admin\RelatorioController::class . '::index');
+    Route::get('/relatorios-export', \App\Controllers\Admin\RelatorioController::class . '::exporte');
 });

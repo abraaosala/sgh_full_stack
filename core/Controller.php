@@ -39,7 +39,7 @@ abstract class Controller
 
         // Se após as verificações, não tivermos uma ação válida, a rota é inválida.
         if (!$callable && !$controllerName) {
-            throw new Exception("Definição de rota inválida.");
+            throw new Exception("Definição de rota inválida.", 500);
         }
 
         // Se não for uma Closure, precisamos instanciar o controller
@@ -54,16 +54,16 @@ abstract class Controller
                 }
 
                 if (!class_exists($resolvedName)) {
-                    throw new Exception(sprintf('Controller %s não encontrado.', $controllerName));
+                    throw new Exception(sprintf('Controller %s não encontrado.', $controllerName), 500);
                 }
-                
+
                 $controllerName = $resolvedName;
             }
 
             $controllerInstance = new $controllerName();
 
             if (!method_exists($controllerInstance, $method)) {
-                throw new Exception(sprintf('O método %s não existe no controller %s.', $method, $controllerName));
+                throw new Exception(sprintf('O método %s não existe no controller %s.', $method, $controllerName), 500);
             }
 
             // Cria o callable final

@@ -13,14 +13,14 @@ trait DocumentExport
 {
    public function export(array $data, string $type): void
    {
-       // Lógica para exportar documentos
+      // Lógica para exportar documentos
       switch ($type) {
          case 'pdf':
 
             $view = $data['view'] ?? 'reports.document';
-            
+
             $dataView = $data['data'] ?? [];
-         
+
             $datafinal = [
                'nome_arquivo' =>  $data['nome_arquivo'] ?? 'documento',
                'html' => $this->vcontent($dataView, $view),
@@ -30,7 +30,7 @@ trait DocumentExport
             $pdf = new Export(Pdf::class);
             $pdf->export($datafinal);
             break;
-            
+
          case 'csv':
             $model = $data['model'] ?? [];
 
@@ -67,8 +67,31 @@ trait DocumentExport
             $exportador->export($data);
             break;
          default:
-              throw new \Exception(" O Tipo indefinido");
+            throw new \Exception(" O Tipo indefinido");
       }
-     
+   }
+
+   /**
+    * Renderiza o conteúdo da view para exportação (PDF)
+    * Suporta templates PHP na pasta App/views/
+    */
+   protected function vcontent(array $data, string $view): string
+   {
+      $viewPath = str_replace('.', DIRECTORY_SEPARATOR, $view);
+      $file = VIEW . $viewPath . '.php';
+
+      if (!file_exists($file)) {
+         // Fallback para Blade se o arquivo não existir em App/views
+         try {
+            return \App\library\View::content($view, $data);
+         } catch (\Exception $e) {
+            throw new \Exception("Template não encontrado: {$file}");
+         }
+      }
+
+      extract($data);
+      ob_start();
+      require $file;
+      return ob_get_clean();
    }
 }

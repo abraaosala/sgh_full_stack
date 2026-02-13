@@ -101,26 +101,25 @@ function logged(): bool
 // ------------------------------------------------------------
 function router(Router $router)
 {
-
-
     $uri = $router->getUri();
 
     try {
         return $router->router();
-    } catch (Throwable $throwable) {
+    } catch (Throwable $e) {
+        // Obter código do erro (fallback 500 para evitar códigos 0)
+        $code = ($e->getCode() > 0) ? (int) $e->getCode() : 500;
+
         if (str_contains((string) $uri, 'api')) {
-            response()->json([
+            return response()->json([
                 'success' => false,
-                'detail' => $throwable->getMessage(),
-                'line' => $throwable->getLine(),
-                'trace' => $throwable->getTrace()
-
-            ], 400);
-        } else {
-
-            (new ErrorPage())->in(404, $throwable);
-            exit;
+                'detail' => $e->getMessage(),
+                'code' => $code,
+                'line' => $e->getLine()
+            ], $code);
         }
+
+        (new ErrorPage())->in($code, $e);
+        exit;
     }
 }
 
@@ -820,10 +819,14 @@ function status(int $id, int $status): string
 /**
  * Chegar se existe valor na Tabela pelo Id.
  */
-function check_on_table(string|Model $model, int $id): bool
+function check_on_table(string|object $model, int $id): bool
 {
     if (!is_object($model)) {
         $model = new $model();
+    }
+
+    if (method_exists($model, 'find')) {
+        return (bool) $model->find($id);
     }
 
     return (bool) $model->findById($id);
@@ -968,18 +971,15 @@ function getUser($model, int $id): ?object
         $model = new $model();
     }
 
-    // dd($model);
-    // Verifica se o ID é válido
     if ($id <= 0) {
-        return null; // Retorna null se o ID for inválido
+        return null;
     }
 
-    // dd($id);
-    // Busca o usuário pelo ID
-    $user = $model->findById($id);
+    if (method_exists($model, 'find')) {
+        return (object) $model->find($id);
+    }
 
-    // Retorna o usuário ou null se não encontrado
-    return $user ?: null;
+    return $model->findById($id) ?: null;
 }
 
 function manager(): FileManager
@@ -1012,9 +1012,8 @@ function fileManager(): FileManager
 
 function verifyPasswordGenerate($id, $perfil)
 {
-
-    $user = (new User())->findById($id, 'id, senha_gerada as gerado');
-    return $user->gerado == 1;
+    $user = \App\Models\User::select('id', 'senha_gerada')->find($id);
+    return $user && $user->senha_gerada == 1;
 }
 
 function validator($data): Validator
@@ -1231,5 +1230,49 @@ function cors($dominioPermitidos = [])
     if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         http_response_code(200);
         exit();
+    }
+}
+
+function isAjax(): bool
+{
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+}
+
+/**
+ * Simple Service Container / Dependency Injector
+ */
+function container(string $class)
+{
+    static $instances = [];
+
+    if (isset($instances[$class])) {
+        return $instances[$class];
+    }
+
+    try {
+        $reflection = new ReflectionClass($class);
+        $constructor = $reflection->getConstructor();
+
+        if (!$constructor) {
+            return $instances[$class] = new $class();
+        }
+
+        $parameters = $constructor->getParameters();
+        $dependencies = [];
+
+        foreach ($parameters as $parameter) {
+            $type = $parameter->getType();
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                $dependencies[] = container($type->getName());
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                $dependencies[] = $parameter->getDefaultValue();
+            } else {
+                throw new Exception("Cannot resolve parameter {$parameter->getName()} for {$class}");
+            }
+        }
+
+        return $instances[$class] = $reflection->newInstanceArgs($dependencies);
+    } catch (ReflectionException $e) {
+        throw new Exception("Class {$class} not found: " . $e->getMessage());
     }
 }

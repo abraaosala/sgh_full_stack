@@ -22,6 +22,8 @@ Route::group(['prefix' => '/api', 'middleware' => []], function () {
 
     Route::get('/agenda/medico', [AgendaMedicaController::class, 'api']);
 
+    Route::post('/agenda/medico/gerar-aleatorio', [AgendaMedicaController::class, 'storealeatory']);
+
     Route::post('/agenda/medico/store', [AgendaMedicaController::class, 'store']);
 
     Route::put('/agenda/medico/save', [AgendaMedicaController::class, 'update']);

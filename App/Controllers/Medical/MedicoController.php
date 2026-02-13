@@ -4,6 +4,7 @@ namespace App\Controllers\Medical;
 
 use App\classes\Password;
 use App\Models\Especialidade;
+use App\Services\MailService;
 use App\Models\Medico;
 use App\Models\Provincia;
 use App\Models\User;
@@ -126,18 +127,26 @@ class MedicoController extends Controller
             'hospital' => $data['hospital'] ?? HOSPITAL // Fallback if not in form
          ]);
 
-         // Only for development/testing environment
-         $file = manager();
-         if (!$file->exists('email', $data['email'])) {
-            $file->add([
-               'email' => $data['email'],
-               'senha' => $senha
-            ]);
-         }
-
          DB::commit();
          PostOld::clean();
-         redirect('admin/medicos', ['success', 'Medico Registrado com sucesso']);
+
+         // Armazenar temporariamente para o PDF
+         session()->set('temp_credentials', [
+            'nome' => $data['nome'],
+            'email' => $data['email'],
+            'senha' => $senha
+         ]);
+
+         // Enviar E-mail (Opcional)
+         (new MailService())->sendCredentials($data['email'], $data['nome'], $senha);
+
+         $msg = sprintf(
+            'Médico Registrado com sucesso! <br> <strong>Senha de Acesso: %s</strong> <br> ' .
+               '<a href="%s" class="btn btn-sm btn-info mt-2" target="_blank"><i class="feather icon-printer"></i> Imprimir Protocolo de Acesso (PDF)</a>',
+            $senha,
+            lnk('admin/imprimir-credenciais')
+         );
+         redirect('admin/medicos', ['success', $msg, 'success']);
       } catch (\Exception $exception) {
          DB::rollBack();
          redirect('admin/medicos', ['error', 'Erro ao cadastrar: ' . $exception->getMessage()]);
@@ -232,10 +241,36 @@ class MedicoController extends Controller
       }
    }
 
+   public function destroy($params)
+   {
+      $id = (int) ($params['medico-excluir'] ?? 0);
+
+      if ($id === 0) {
+         redirect('admin/medicos', ['error', 'Médico não encontrado', 'danger']);
+      }
+
+      $medico = Medico::find($id);
+      if (!$medico) {
+         redirect('admin/medicos', ['error', 'Médico não encontrado', 'danger']);
+      }
+
+      DB::beginTransaction();
+      try {
+         $usuarioId = $medico->usuario_id;
+         $medico->delete();
+         User::destroy($usuarioId);
+
+         DB::commit();
+         redirect('admin/medicos', ['success', 'Médico excluído com sucesso']);
+      } catch (\Exception $exception) {
+         DB::rollBack();
+         redirect('admin/medicos', ['error', 'Falha ao excluir: ' . $exception->getMessage()]);
+      }
+   }
+
    public function delete($params)
    {
-      // Implement delete if logical delete (soft delete) or hard delete is required.
-      // Typically: Medico::destroy($params['id']);
+      $this->destroy($params);
    }
 
    public function exporte()
@@ -265,7 +300,7 @@ class MedicoController extends Controller
             'title' => 'Relatório de medicos',
             'description' => 'Lista de medicos',
             'keywords' => 'Relatório, medicos, Lista',
-            'lists' => $flatMedicos, // The view likely expects 'lists'
+            'medicos' => $flatMedicos,
             'total' => $medicos->count(),
             'date' => date('d/m/Y'),
             'hour' => date('H:i:s'),
@@ -273,10 +308,19 @@ class MedicoController extends Controller
          ],
          'nome_arquivo' => "medicos" . date('YmdHis'),
          'download' => false,
-         'model' => $medicos // Or flatMedicos if DocumentExport trait uses it primarily
+         'model' => $medicos->map(function ($m) {
+            return [
+               'Nº Ordem' => $m->numero_ordem,
+               'Nome' => $m->usuario->nome,
+               'Especialidade' => $m->especialidade->nome ?? 'N/A',
+               'Gênero' => genero($m->usuario->genero),
+               'Telefone' => $m->telefone,
+               'E-mail' => $m->usuario->email,
+               'Província' => $m->provincia->nome ?? 'N/A'
+            ];
+         })->toArray()
       ];
 
       $this->export($data, $type);
    }
 }
- 

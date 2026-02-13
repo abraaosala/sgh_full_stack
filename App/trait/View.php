@@ -6,6 +6,7 @@ trait View
 {
     public function view(array $data, string $view = 'dashboard')
     {
+       
         $this->render(
             [
                 'partials.header-html',
@@ -20,11 +21,14 @@ trait View
 
     public function render(array $templetes, ?array $data = null)
     {
+       
         // converte os / em .
         $templetes = str_replace('.', '/', $templetes);
         if ($data !== null && $data !== [] &&  is_array($data)) {
             extract($data);
         }
+
+        
 
         foreach ($templetes as $templete) {
             include VIEW . $templete . ".php";

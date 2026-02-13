@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Paciente extends Model
 {
     protected $table = 'pacientes';
-    
+
     public $timestamps = false;
-    
+
     protected $fillable = [
         'usuario_id',
         'code',
@@ -31,5 +31,15 @@ class Paciente extends Model
     public function consultas()
     {
         return $this->hasMany(Consulta::class, 'paciente_id');
+    }
+
+    public function diagnosticos()
+    {
+        return $this->hasMany(Diagnostico::class, 'paciente_id');
+    }
+
+    public function historicos()
+    {
+        return $this->hasMany(HistoricoClinico::class, 'paciente_id');
     }
 }

@@ -12,47 +12,35 @@ class ErrorPage extends Exception
 
     public function in($code, null|array|Throwable $e = [])
     {
-
         if (is_array($code)) {
-            # code...
-            $code = (int) $code['error'];
+            $code = (int) ($code['error'] ?? 500);
         }
 
+        $code = (int) $code;
         http_response_code($code);
 
-        $message = '';
-        if (!empty($e)) {
-            # code...
-            $message = $e->getMessage();
-        }
+        $message = ($e instanceof Throwable) ? $e->getMessage() : '';
 
         $data = [
-            'title' => sprintf('Erro de Pagina (%s)', $code),
+            'title' => sprintf('Erro %s', $code),
             'message' => $message,
-           'exception'=> $e
+            'code' => $code,
+            'exception' => $e
         ];
-        if ($code === 404) {
-            $this->render([
-                'partials.header-html',
-                'pages.e404',
-                'partials.footer-html',
-            ], data($data));
-        }
 
-        if ($code === 500) {
-            $this->render([
-                'partials.header-html',
-                'pages.e500',
-                'partials.footer-html',
-            ], data($data));
-        }
+        // Mapeamento de views por código
+        $view = match ($code) {
+            403 => 'pages.e403',
+            404 => 'pages.e404',
+            405 => 'pages.e405', // Se não existir, o trait View lidará com o erro
+            500 => 'pages.e500',
+            default => 'pages.e500' // Fallback para erros desconhecidos
+        };
 
-        if ($code === 403) {
-            $this->render([
-                'partials.header-html',
-                'pages.e403',
-                'partials.footer-html',
-            ], data($data));
-        }
+        $this->render([
+            'partials.header-html',
+            $view,
+            'partials.footer-html',
+        ], data($data));
     }
 }

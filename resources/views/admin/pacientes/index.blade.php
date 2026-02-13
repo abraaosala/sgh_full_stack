@@ -48,6 +48,34 @@
     </a>
 </div>
 
+<!-- Filtro e Pesquisa -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form action="{{ lnk('admin/pacientes') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-9">
+                <label class="form-label small fw-bold text-uppercase">Pesquisar Paciente</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="feather icon-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control form-control-sm border-start-0 shadow-none focus-ring" 
+                           placeholder="Nome ou Código do Paciente..." value="{{ $_GET['search'] ?? '' }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="feather icon-filter me-1"></i> Filtrar
+                    </button>
+                    @if(isset($_GET['search']) && $_GET['search'] !== '')
+                        <a href="{{ lnk('admin/pacientes') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="feather icon-x"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Tabela -->
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
@@ -79,7 +107,7 @@
                         <td>{{ date('d/m/Y', strtotime($paciente->usuario->data_nascimento)) }}</td>
                         <td>{{ $paciente->telefone }}</td>
                         <td class="text-center">
-                            <button class="btn btn-icon btn-link-primary" onclick="eye({{ $paciente->id }})" title="Visualizar">
+                            <button type="button" onclick="eye({{ $paciente->id }})" class="btn btn-icon btn-link-primary" title="Visualizar">
                                 <i class="feather icon-eye"></i>
                             </button>
                             <a href="{{ lnk('admin/paciente-editar/' . $paciente->id) }}" class="btn btn-icon btn-link-warning" title="Editar">
@@ -93,7 +121,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="text-center py-5 text-muted">
-                            <p class="mb-0">Nenhum paciente cadastrado no sistema.</p>
+                            <p class="mb-0">Nenhum paciente encontrado.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -139,6 +167,12 @@
                             <dt class="col-sm-4 text-muted">Telefone:</dt>
                             <dd class="col-sm-8" id="modalTelefone">-</dd>
 
+                            <dt class="col-sm-4 text-muted">Gênero:</dt>
+                            <dd class="col-sm-8" id="modalGenero">-</dd>
+
+                            <dt class="col-sm-4 text-muted">Nascimento:</dt>
+                            <dd class="col-sm-8" id="modalNascimento">-</dd>
+
                             <dt class="col-sm-4 text-muted">Província:</dt>
                             <dd class="col-sm-8" id="modalProv">-</dd>
                         </dl>
@@ -155,14 +189,25 @@
 <script>
     async function eye(id) {
         try {
-            const response = await fetch(`{{ root() }}admin/paciente/${id}`);
+            const response = await fetch(`{{ lnk('admin/paciente/') }}${id}?json=1`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
             const result = await response.json();
+
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
 
             const modal = new bootstrap.Modal(document.getElementById('visualizarModal'));
 
             document.getElementById('modalNome').innerHTML = result.nome;
             document.getElementById('modalEmail').innerHTML = result.email;
             document.getElementById('modalTelefone').innerHTML = result.telefone;
+            document.getElementById('modalGenero').innerHTML = result.genero;
+            document.getElementById('modalNascimento').innerHTML = result.data_nascimento;
             document.getElementById('modalCod').innerHTML = `ID: ${result.code}`;
             document.getElementById('modalProv').innerHTML = result.provincia;
             document.getElementById('modalEndereco').innerHTML = result.endereco || 'Endereço não informado.';

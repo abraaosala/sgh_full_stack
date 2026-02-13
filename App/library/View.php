@@ -21,11 +21,20 @@ class View
      */
     public static function render(string $view, array $data = [])
     {
-        // Instancia o BladeOne
-        // MODE_AUTO: Recompila se o template mudar (bom para dev e prod)
-        $blade = new BladeOne(self::VIEWS, self::CACHE, BladeOne::MODE_AUTO);
+        echo self::content($view, $data);
+    }
 
-        // Renderiza e imprime o conteúdo
-        echo $blade->run($view, $data);
+    /**
+     * Retorna o conteúdo renderizado de um template BladeOne
+     *
+     * @param string $view Nome da view
+     * @param array $data Dados
+     * @return string
+     */
+    public static function content(string $view, array $data = []): string
+    {
+        $data = globals($data);
+        $blade = new BladeOne(self::VIEWS, self::CACHE, BladeOne::MODE_AUTO);
+        return $blade->run($view, $data);
     }
 }

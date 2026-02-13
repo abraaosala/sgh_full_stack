@@ -15,6 +15,7 @@ generator/
 #
 App/views/layouts/
 cache/
+store/
 *.txt
 test_502.php
 public/pdfs/*.pdf

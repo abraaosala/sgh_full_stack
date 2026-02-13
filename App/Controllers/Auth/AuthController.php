@@ -83,17 +83,21 @@ class AuthController
       session()->sets([
          'id' => $find->id,
          'perfil' => $find->perfil,
-         // 'model' => $model::class
       ]);
+
+      // Verificar se a senha foi gerada pelo sistema (exige troca obrigatória)
+      if ($find->senha_gerada == 1) {
+         redirect('/renovar_senha_gerado', ['info', 'Por favor, altere sua senha temporária para continuar.', 'info']);
+      }
 
       // Redireciona conforme o nível de perfil
       match ($find->perfil) {
-          'superadmin', 'admin' => redirect(ROUTE_ADMIN_HOME),
-          'medico' => redirect(ROUTE_MEDICO_HOME),
-          'enfermeiro' => redirect(ROUTE_ENFERMEIRO_HOME),
-          'recepcionista' => redirect(ROUTE_RECEPCAO_HOME),
-          'paciente' => redirect(ROUTE_PACIENTE_HOME),
-          default => redirect(ROUTE_LOGIN, ['error', 'Perfil de usuário desconhecido.', 'danger']),
+         'superadmin', 'admin' => redirect(ROUTE_ADMIN_HOME),
+         'medico' => redirect(ROUTE_MEDICO_HOME),
+         'enfermeiro' => redirect(ROUTE_ENFERMEIRO_HOME),
+         'recepcionista' => redirect(ROUTE_RECEPCAO_HOME),
+         'paciente' => redirect(ROUTE_PACIENTE_HOME),
+         default => redirect(ROUTE_LOGIN, ['error', 'Perfil de usuário desconhecido.', 'danger']),
       };
       // Super Admin
       if ($find->perfil === 'superadmin') {

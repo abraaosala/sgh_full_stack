@@ -7,6 +7,7 @@ use App\classes\Password;
 use App\Models\Paciente;
 use App\Models\Provincia;
 use App\Models\User;
+use App\Services\MailService;
 use App\Http\BaseController as Controller;
 use App\library\PostOld;
 use App\trait\DocumentExport;
@@ -39,21 +40,28 @@ class PacienteController extends Controller
 
    public function show($params)
    {
-      header(API);
+      $id = $params['paciente'];
+      $paciente = Paciente::with([
+         'usuario',
+         'provincia',
+         'consultas.medico.usuario',
+         'consultas.agenda',
+         'historicos',
+         'diagnosticos.medico.usuario',
+         'diagnosticos.doenca'
+      ])->find($id);
 
-      $paciente = Paciente::with(['usuario', 'provincia'])->find($params['paciente']);
-
-      // Flatten data for frontend compatibility if needed, or send directly
-      // Mapping to match old structure:
-      $data = [];
-      if ($paciente) {
-         $data = $paciente->toArray();
-         $data['nome'] = $paciente->usuario->nome ?? '';
-         $data['email'] = $paciente->usuario->email ?? '';
-         $data['provincia'] = $paciente->provincia->nome ?? '';
+      if (!$paciente) {
+         redirect('admin/pacientes', ['error', 'Paciente não encontrado']);
       }
 
-      echo json_encode($data, true);
+      $data = [
+         'paciente' => $paciente,
+         'title' => 'Perfil do Paciente',
+         'description' => 'Detalhes do Paciente',
+      ];
+
+      $this->view(globals($data), 'admin.pacientes.show');
    }
 
    public function create()
@@ -108,7 +116,9 @@ class PacienteController extends Controller
       DB::beginTransaction(); // Start Transaction
 
       try {
-         $user = new User();
+         // Gerar Senha
+         $senha = Password::generate(2);
+
          // Create User
          $user = User::create([
             'nome' => $data['nome'],
@@ -116,7 +126,8 @@ class PacienteController extends Controller
             'perfil' => $data['perfil'],
             'genero' => $data['genero'],
             'data_nascimento' => $data['data_nascimento'],
-            'senha' => Password::hash(Password::generate(2))
+            'senha' => Password::hash($senha),
+            'senha_gerada' => 1
          ]);
 
          // Create Paciente via Relationship
@@ -129,7 +140,24 @@ class PacienteController extends Controller
 
          DB::commit();
          PostOld::clean();
-         redirect('admin/pacientes', ['success', 'Paciente registrado com sucesso']);
+
+         // Armazenar temporariamente para o PDF
+         session()->set('temp_credentials', [
+            'nome' => $data['nome'],
+            'email' => $data['email'],
+            'senha' => $senha
+         ]);
+
+         // Enviar E-mail (Opcional)
+         (new MailService())->sendCredentials($data['email'], $data['nome'], $senha);
+
+         $msg = sprintf(
+            'Paciente registrado com sucesso! <br> <strong>Senha de Acesso: %s</strong> <br> ' .
+               '<a href="%s" class="btn btn-sm btn-info mt-2" target="_blank"><i class="feather icon-printer"></i> Imprimir Protocolo de Acesso (PDF)</a>',
+            $senha,
+            lnk('admin/imprimir-credenciais')
+         );
+         redirect('admin/pacientes', ['success', $msg, 'success']);
       } catch (\Exception $exception) {
          DB::rollBack();
          redirect('admin/pacientes', ['error', 'Erro ao cadastrar: ' . $exception->getMessage()]);
@@ -225,9 +253,36 @@ class PacienteController extends Controller
       }
    }
 
+   public function destroy($params)
+   {
+      $id = (int) ($params['paciente-excluir'] ?? 0);
+
+      if ($id === 0) {
+         redirect('admin/pacientes', ['error', 'Paciente não encontrado', 'danger']);
+      }
+
+      $paciente = Paciente::find($id);
+      if (!$paciente) {
+         redirect('admin/pacientes', ['error', 'Paciente não encontrado', 'danger']);
+      }
+
+      DB::beginTransaction();
+      try {
+         $usuarioId = $paciente->usuario_id;
+         $paciente->delete();
+         User::destroy($usuarioId);
+
+         DB::commit();
+         redirect('admin/pacientes', ['success', 'Paciente excluído com sucesso']);
+      } catch (\Exception $exception) {
+         DB::rollBack();
+         redirect('admin/pacientes', ['error', 'Falha ao excluir: ' . $exception->getMessage()]);
+      }
+   }
+
    public function delete($params)
    {
-      // Implement delete logic if needed
+      $this->destroy($params);
    }
 
    public function exporte()
@@ -259,7 +314,18 @@ class PacienteController extends Controller
 
       $data['nome_arquivo'] = "pacientes" . date('YmdHis');
       $data['download'] = false;
-      $data['model'] = $pacientes; // convertData($model);
+      $data['model'] = $pacientes->map(function ($p) {
+         return [
+            'Código' => $p->code,
+            'Nome' => $p->usuario->nome,
+            'Gênero' => genero($p->usuario->genero),
+            'Data de Nascimento' => date('d/m/Y', strtotime((string) $p->usuario->data_nascimento)),
+            'Telefone' => $p->telefone,
+            'E-mail' => $p->usuario->email,
+            'Província' => $p->provincia->nome ?? 'N/A',
+            'Endereço' => $p->endereco
+         ];
+      })->toArray();
 
       $this->export($data, $type);
    }

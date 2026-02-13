@@ -5,14 +5,20 @@ namespace App\Controllers\Admin;
 use App\classes\Password;
 use App\classes\Validator\GeneralValidator as Validator;
 use App\classes\View;
-use App\Dao\Entity\UserEntity;
-use App\Dao\Models\User;
+use App\Models\User;
 use App\Http\Request;
 use App\trait\TemplateView;
 
 class SettingController
 {
-    use TemplateView;
+    use \App\trait\TemplateView;
+
+    protected $settingService;
+
+    public function __construct()
+    {
+        $this->settingService = container(\App\Services\SettingService::class);
+    }
 
     public function renovarSenhaGerate($params)
     {
@@ -23,196 +29,82 @@ class SettingController
             redirect($perfil . '/home', ['informar', 'Usuario já alterou sua senha', 'info']);
         }
 
-        View::srender([
+        \App\classes\View::srender([
             'partials.header-html',
             'pages.senha_gerada',
             'partials.footer-html'
-        ], data([
+        ], [
             'title' => 'Renovar a senha Gerada',
             'id' => $id,
-        ]));
+        ]);
     }
 
     public function renovarSenha()
     {
-
-
         $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
-        $user = (new User(UserEntity::class))->findById($data['id']);
-        $model = new User(UserEntity::class);
-        // dd($data);
-        $validator = validator($data);
-        $validator->Roles('senha', 'required', 'Senha é campo Obrigatório');
-        /*   $validator->Roles('senha', 'between', "Senha não correspondde, deve ter entre 8 a 16 caracteres",[8,16]); */
-        $validator->Roles('confirm_password', 'required', 'Senha é campo Obrigatório');
-        $validator->Roles('senha', 'compare', 'Senha não são compativeis', [$data['confirm_password']]);
-        // dd($data);
+        $id = (int) ($data['id'] ?? 0);
 
-        if (!$validator->validation()) {
-            $errors = $validator->getErrors();
-            // dd($errors);
-            if ($errors['senha']) {
-                // code...
-                redirect('config/renovar_senha_gerado', ['password', $errors['senha'], 'danger']);
-            }
-
-            if ($errors['confirm_password']) {
-                // code...
-                redirect('config/renovar_senha_gerado', ['confirm_password', $errors['confirm_password'], 'danger']);
-            }
+        try {
+            $this->settingService->renewPassword($id, $data);
+            $perfil = session()->get('perfil');
+            redirect($perfil . '/home', ['success', 'Senha renovada com sucesso!', 'success']);
+        } catch (\App\Exceptions\ValidationException $e) {
+            redirect('renovar_senha_gerado', ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect('renovar_senha_gerado', ['error', $e->getMessage(), 'danger']);
         }
-
-        unset($data['confirm_password']);
-
-        // dd();
-        if (!$user) {
-            redirect('config/renovar_senha_gerado', ['error', 'Usuario não foi encontrado', 'danger']);
-        }
-
-        // remover a senha gerada  no store
-        fileManager()->delete('email', $user->email);
-
-        $model->setEntity()->senha = Password::hash($data['senha']);
-        $model->setEntity()->id = $data['id'];
-        $model->setEntity()->senha_gerada = null;
-
-        $updated = $model->save();
-        if ($updated) {
-            redirect($user->perfil . '/home', ['success', 'Senha renovada com sucesso!', 'success']);
-        }
-
-        // entity_data_itera($data,$model);
-        // dd();
     }
-
-    public function procurarUsuario() {}
 
     public function recuperarSenha()
     {
-
         if (empty($_SESSION['etapa_senha'])) {
             $_SESSION['etapa_senha'] = 1;
         }
 
-        // if (empty($_SESSION['etapa_senha']))
-        //     ;
-
         $etapa = $_SESSION['etapa_senha'];
-        if ($etapa == 1):
-            $data = [
-                'title' => 'Procurar Usuario',
-                'description' => 'Encontrar Usuario',
-                'keywords' => 'Encontrar, Usuario, Senha'
-            ];
-            $this->render([
-                'partials.header-html',
-                'pages.search-user',
-                'partials.footer-html'
-            ], globals($data));
-        elseif ($etapa == 2):
+        
+        $data = [
+            'title' => ($etapa == 1) ? 'Procurar Usuario' : 'Recuperando Senha',
+            'description' => ($etapa == 1) ? 'Encontrar Usuario' : 'Alterar Senha Esquecida',
+            'keywords' => 'Recuperar, Senha, SGH'
+        ];
 
-            $data = [
-                'title' => 'Recuperando Senha',
-                'description' => 'Alterar Senha Esquecida',
-                'keywords' => 'alterar, Senha, Nova Senha, Esquecido',
-            ];
-            $this->render([
-                'partials.header-html',
-                'pages.altera-senha',
-                'partials.footer-html'
-            ], globals($data));
-        endif;
+        $page = ($etapa == 1) ? 'pages.search-user' : 'pages.altera-senha';
+
+        $this->render([
+            'partials.header-html',
+            $page,
+            'partials.footer-html'
+        ], $data);
     }
 
     public function recovery($params)
     {
-
-        $data = sanitizeInput((new Request)->getBody());
-        $model = new User(UserEntity::class);
+        $data = sanitizeInput(filter_input_array(INPUT_POST, FILTER_DEFAULT));
         $etapa = (int) $params['etapa'];
+        $sessionEtapa = (int) ($_SESSION['etapa_senha'] ?? 0);
 
-        $e_senha =  $_SESSION['etapa_senha'];
-        // dd($etapa);
-        if ($etapa !== $e_senha) {
-            throw new \Exception("Etapas não são compativeis");
+        if ($etapa !== $sessionEtapa) {
+            throw new \Exception("Etapas não são compatíveis");
         }
 
-        if ($e_senha === 1) {
-            $usuario = $data['user'];
-            if (!Validator::required($usuario)) {
-                redirect('recuperar_senha', ['error', 'O Campo é Obrigatorio', 'danger']);
-            }
-
-            if (!Validator::email($usuario) || !Validator::email($usuario)) {
-                redirect(
-                    'recuperar_senha',
-                    ['error', 'Valor não é compativel, deve ser email ou BI', 'danger']
-                );
-            }
-
-            $user = $model->select()->where(function ($model) use ($usuario) {
-                $model->where('email', '=', $usuario)
-                    // ->where('bi', '=', $usuario, 'or')
-                ;
-            })->first();
-            if (!$user) {
-                redirect(
-                    'recuperar_senha',
-                    ['error', 'Usuario não foi encontrado', 'danger']
-                );
-            }
-
-            $_SESSION['etapa_senha'] = 2;
-            $_SESSION['id'] = $user->id;
-            redirect(
-                sprintf('recuperar_senha?email=%s?etapa=2', $user->email),
-                ['info', 'Usuario encontrado', 'success']
-            );
-            // dd($user);
-
-
-        } elseif ($e_senha === 2) {
-            // dd($data);
-            $id = (int) $_SESSION['id'];
-            if (!Validator::required($data['senha'])) {
-                redirect(
-                    'recuperar_senha',
-                    ['password', 'Campo Obrigatório', 'danger']
-                );
-            }
-
-          
-            if (!Validator::required($data['confirm_password'])) {
-                redirect(
-                    'recuperar_senha',
-                    ['confirm_password', 'Campo Obrigatório', 'danger']
-                );
-            }
-
-            if (!Validator::compare($data['senha'], $data['confirm_password'])) {
-                redirect(
-                    'recuperar_senha',
-                    ['password', 'Senha Senhas sao diferentes', 'danger']
-                );
-            }
-
-            //Atribuir valores no entity     
-            $model->setEntity()->id = $_SESSION['id'];
-            $model->setEntity()->senha = Password::hash($data['senha']);
-
-            //Actualizar
-            $update = $model->save();
-            if ($update) {
+        try {
+            if ($etapa === 1) {
+                $user = $this->settingService->findUserForRecovery($data['user'] ?? '');
+                $_SESSION['etapa_senha'] = 2;
+                $_SESSION['temp_recovery_id'] = $user->id;
+                redirect(sprintf('recuperar_senha?email=%s&etapa=2', $user->email), ['info', 'Usuário encontrado', 'success']);
+            } elseif ($etapa === 2) {
+                $id = (int) ($_SESSION['temp_recovery_id'] ?? 0);
+                $this->settingService->recoverPassword($id, $data);
                 $_SESSION['etapa_senha'] = null;
+                unset($_SESSION['temp_recovery_id']);
+                redirect('login', ['success', 'Senha alterada com sucesso!']);
             }
-
-            // session_destroy();
-            redirect(
-                'login',
-                ['success', 'Senha alterado com Successo']
-            );
-            // dd($model);
-
+        } catch (\App\Exceptions\ValidationException $e) {
+            redirect('recuperar_senha', ['error', implode('<br>', $e->getErrors()), 'danger']);
+        } catch (\Exception $e) {
+            redirect('recuperar_senha', ['error', $e->getMessage(), 'danger']);
         }
     }
 }

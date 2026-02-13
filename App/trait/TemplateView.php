@@ -67,7 +67,8 @@ trait   TemplateView
      */
     public function render(array $templateNames, ?array $data = null): void
     {
-        $sanitizedData = $data !== null && $data !== [] && is_array($data) ? $this->sanitizeTemplateData($data) : [];
+        $sanitizedData = $data !== null && $data !== [] && is_array($data) ? globals($data) : globals([]);
+        $sanitizedData = $this->sanitizeTemplateData($sanitizedData);
 
         $isolatedRenderFunction = function ($filePath) use ($sanitizedData) {
             if (!empty($sanitizedData)) {

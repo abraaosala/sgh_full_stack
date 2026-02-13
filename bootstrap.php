@@ -5,22 +5,20 @@ declare(strict_types=1); //
 use App\controllers\ErrorPage;
 use core\Router;
 
-session_start(); //inicio de sessao
+if (php_sapi_name() !== 'cli') {
+    session_start(); // Inicio de sessão apenas em ambiente web
+}
 
 // Incluir Autoload de Classes
 /* ======================================= */
 require __DIR__ . "/vendor/autoload.php";
 
+// Disponibilizar variavel de Ambiente 
+safeEnv();
+
 //DataZona Local 
 /* ======================================= */
 date_default_timezone_set(env('TIME_ZONE', 'Africa/Luanda')); // 
-
-/* ======================================= */
-
-
-/* ======================================= */
-// Disponibilizar variavel de Ambiente 
-safeEnv();
 
 // Inicializar Eloquent ORM
 (new App\library\Database)->init();
@@ -75,7 +73,7 @@ if (true) { // Force error display for debugging
 
 
 // Configurações do Sistema
-require_once 'conf/Config.php';
+require_once __DIR__ . '/conf/Config.php';
 
 
 

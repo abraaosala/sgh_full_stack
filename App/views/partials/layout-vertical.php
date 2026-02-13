@@ -26,7 +26,7 @@
                 </li>
                 <?php // Refacturando por swift switch      
                 ?>
-                <?php if ($auth->perfil == 'superadmin') { ?>
+                <!-- <?php if ($auth->perfil == 'superadmin') { ?>
                     <li class="pc-item pc-caption">
                         <label>Configuração Mestra</label>
                         <i class="ti ti-shield-cog"></i>
@@ -51,7 +51,7 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php } ?> -->
 
 
                 <?php // --- SEÇÃO DE ADMINISTRAÇÃO (Admin e Super Admin) --- 

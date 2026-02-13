@@ -1,12 +1,9 @@
 <?php
 
-namespace App\controllers\Reception;
+namespace App\Controllers\Reception;
 
-use App\Dao\Models\Medico;
-use App\Dao\Models\Paciente;
-use App\Dao\Models\User;
+use App\Models\Medico;
 use App\Http\BaseController as Controller;
-use core\ApiController;
 
 class AgendaController extends Controller
 {
@@ -14,17 +11,13 @@ class AgendaController extends Controller
    // Métodos padrão de controllers RESTful
    public function index()
    {
-
       // Listar recursos
-      $medicos = (new Medico())->select('medicos.*, usuarios.nome as nome')->join(User::class, 'medicos.usuario_id', '=', 'usuarios.id')->get(); // Supondo que você tenha um modelo Medico
-      // $pacientes =(new Paciente())->select('pacientes.*, usuarios.nome')->join(User::class, 'usuario_id', '=', 'id')->get(); // Supondo que você tenha um modelo Paciente
+      $medicos = Medico::with('usuario')->get();
 
-      // dd($medicos, $pacientes);
-      // dd($medicos);
       $this->view(globals([
          'medicos' => $medicos,
-         'title' => "Escala de Medicos"
-      ]), 'admin.agenda-med');
+         'title' => "Escala de Médicos"
+      ]), 'admin.agenda');
    }
 
    public function show($params) {}
